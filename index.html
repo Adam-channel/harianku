@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+  <title>Harianku · Alat bantu sehari-hari</title>
+  <meta name="description" content="Catatan uang, daftar tugas, daftar belanja, dan kalkulator patungan dalam satu halaman. Data tersimpan di browser dan bisa dipakai offline.">
+  <meta name="theme-color" content="#0B1220">
+  <meta name="color-scheme" content="light dark">
+
+  <!-- Ikon tab browser & ikon aplikasi (folder ikon/) -->
+  <link rel="icon" href="ikon/ikon.svg" type="image/svg+xml">
+  <link rel="icon" href="ikon/ikon-192.png" type="image/png" sizes="192x192">
+  <link rel="apple-touch-icon" href="ikon/apple-touch-icon.png">
+
+  <!-- Mode aplikasi di HP. File manifest dipasang oleh js/pwa.js (hanya lewat http/https). -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Harianku">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+  <link rel="stylesheet" href="css/style.css">
+
+  <!-- Urutan script penting: inti.js dulu, lalu tiap alat, lalu main.js, terakhir pwa.js (mode aplikasi).
+       "defer" = script baru dijalankan setelah seluruh HTML selesai dibaca.
+       Semua script biasa (bukan module), jadi tetap jalan saat index.html
+       dibuka dengan klik dua kali (alamat file:///). -->
+  <script src="js/inti.js" defer></script>
+  <script src="js/uang.js" defer></script>
+  <script src="js/tugas.js" defer></script>
+  <script src="js/belanja.js" defer></script>
+  <script src="js/patungan.js" defer></script>
+  <script src="js/data.js" defer></script>
+  <script src="js/main.js" defer></script>
+  <script src="js/pwa.js" defer></script>
+</head>
+<body>
+
+  <!-- ================= KUMPULAN IKON =================
+       Dipakai dengan: <svg class="ikon"><use href="#i-nama"/></svg> -->
+  <svg class="sprite" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="i-dompet" viewBox="0 0 24 24"><rect x="2.5" y="6.5" width="19" height="14" rx="3"/><path d="M16 13.5h2.5"/><path d="M5.5 6.5 14 3l1.6 3.5"/></symbol>
+    <symbol id="i-tugas" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="4"/><path d="m8 12.5 2.8 2.8L16.5 9"/></symbol>
+    <symbol id="i-keranjang" viewBox="0 0 24 24"><path d="M3 4h2.2l2.3 11h10.2l2.1-7.5H6.4"/><circle cx="9.5" cy="19.5" r="1.4"/><circle cx="16.5" cy="19.5" r="1.4"/></symbol>
+    <symbol id="i-orang" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3 19.5c.6-3.4 3-5.5 6-5.5s5.4 2.1 6 5.5"/><circle cx="17" cy="9" r="2.4"/><path d="M16.5 14.2c2.3.3 4 2 4.5 4.8"/></symbol>
+    <symbol id="i-data" viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="7.5" ry="3"/><path d="M4.5 6v12c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3V6"/><path d="M4.5 12c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3"/></symbol>
+    <symbol id="i-tambah" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-kurang" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+    <symbol id="i-kiri" viewBox="0 0 24 24"><path d="m14.5 6-6 6 6 6"/></symbol>
+    <symbol id="i-kanan" viewBox="0 0 24 24"><path d="m9.5 6 6 6-6 6"/></symbol>
+    <symbol id="i-sampah" viewBox="0 0 24 24"><path d="M4 7h16"/><path d="M9.5 7V4.5h5V7"/><path d="m6.5 7 .8 12.2a1.5 1.5 0 0 0 1.5 1.3h6.4a1.5 1.5 0 0 0 1.5-1.3L17.5 7"/><path d="M10 11v6M14 11v6"/></symbol>
+    <symbol id="i-unduh" viewBox="0 0 24 24"><path d="M12 4v11"/><path d="m7.5 10.5 4.5 4.5 4.5-4.5"/><path d="M5 20h14"/></symbol>
+    <symbol id="i-unggah" viewBox="0 0 24 24"><path d="M12 15V4"/><path d="M7.5 8.5 12 4l4.5 4.5"/><path d="M5 20h14"/></symbol>
+    <symbol id="i-bagikan" viewBox="0 0 24 24"><circle cx="18" cy="5.5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="18.5" r="2.5"/><path d="m8.2 10.8 7.6-4.1M8.2 13.2l7.6 4.1"/></symbol>
+    <symbol id="i-bintang" viewBox="0 0 24 24"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.8L12 16.8l-5.2 2.8 1-5.8-4.3-4.1 5.9-.8z"/></symbol>
+    <symbol id="i-kalender" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></symbol>
+    <symbol id="i-centang" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+    <symbol id="i-tabel" viewBox="0 0 24 24"><rect x="3.5" y="4" width="17" height="16" rx="2.5"/><path d="M3.5 9.5h17M3.5 14.5h17M10 9.5V20"/></symbol>
+    <symbol id="i-ulang" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v4.5h4.5"/></symbol>
+    <symbol id="i-kunci" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/></symbol>
+    <symbol id="i-pasang" viewBox="0 0 24 24"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M12 7v6.5"/><path d="m9 10.5 3 3 3-3"/><path d="M10.5 18.5h3"/></symbol>
+  </svg>
+
+  <a class="lewati" href="#konten">Langsung ke isi</a>
+
+  <!-- ================= KEPALA HALAMAN ================= -->
+  <header class="kepala">
+    <div class="wadah kepala__isi">
+      <div class="merek">
+        <span class="merek__logo" aria-hidden="true">H</span>
+        <div>
+          <h1 class="merek__nama">Harianku</h1>
+          <p class="merek__tanggal" id="tanggal-hari-ini">&nbsp;</p>
+        </div>
+      </div>
+      <button class="tombol tombol--gelap" type="button" id="tombol-data" aria-haspopup="dialog">
+        <svg class="ikon" aria-hidden="true"><use href="#i-data"/></svg>
+        <span>Data</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ================= NAVIGASI =================
+       Di HP tampil di bawah layar, di laptop tampil di atas. -->
+  <nav class="navigasi" aria-label="Pilih alat">
+    <div class="wadah navigasi__isi">
+      <a class="navigasi__tautan" href="#uang" data-tab="uang">
+        <svg class="ikon" aria-hidden="true"><use href="#i-dompet"/></svg>
+        <span>Uang</span>
+      </a>
+      <a class="navigasi__tautan" href="#tugas" data-tab="tugas">
+        <svg class="ikon" aria-hidden="true"><use href="#i-tugas"/></svg>
+        <span>Tugas</span>
+        <span class="lencana" id="lencana-tugas" hidden></span>
+      </a>
+      <a class="navigasi__tautan" href="#belanja" data-tab="belanja">
+        <svg class="ikon" aria-hidden="true"><use href="#i-keranjang"/></svg>
+        <span>Belanja</span>
+      </a>
+      <a class="navigasi__tautan" href="#patungan" data-tab="patungan">
+        <svg class="ikon" aria-hidden="true"><use href="#i-orang"/></svg>
+        <span>Patungan</span>
+      </a>
+    </div>
+  </nav>
+
+  <main id="konten" class="wadah isi" tabindex="-1">
+
+    <noscript><p class="peringatan">Harianku butuh JavaScript. Aktifkan JavaScript di browser lalu muat ulang halaman ini.</p></noscript>
+
+    <p class="peringatan" id="peringatan-penyimpanan" hidden>
+      Penyimpanan browser sedang tidak bisa dipakai (misalnya karena mode penyamaran), jadi data akan hilang saat halaman ditutup.
+      Coba buka di jendela biasa atau browser lain.
+    </p>
+
+    <!-- Pesan sambutan: muncul sekali, bisa ditutup -->
+    <div class="info-awal" id="info-awal" hidden>
+      <svg class="ikon" aria-hidden="true"><use href="#i-kunci"/></svg>
+      <p><strong>Selamat datang!</strong> Semua data tersimpan di browser ini saja, tanpa akun dan tanpa internet.
+        Sesekali unduh cadangan lewat tombol <strong>Data</strong> di kanan atas.</p>
+      <button type="button" class="tombol-ikon" id="info-awal-tutup" aria-label="Tutup pesan sambutan">
+        <svg class="ikon" aria-hidden="true"><use href="#i-x"/></svg>
+      </button>
+    </div>
+
+    <!-- Tawaran pasang aplikasi: hanya muncul di browser yang mendukung (lihat js/pwa.js) -->
+    <div class="info-awal info-pasang" id="info-pasang" hidden>
+      <svg class="ikon" aria-hidden="true"><use href="#i-pasang"/></svg>
+      <div class="info-pasang__isi">
+        <p><strong>Pasang Harianku</strong> di layar utama supaya bisa dibuka seperti aplikasi, juga saat tidak ada internet.</p>
+        <button type="button" class="tombol tombol--utama tombol--kecil" id="pasang-tombol">
+          <svg class="ikon" aria-hidden="true"><use href="#i-unduh"/></svg>
+          Pasang
+        </button>
+      </div>
+      <button type="button" class="tombol-ikon" id="pasang-tutup" aria-label="Tutup tawaran pasang aplikasi">
+        <svg class="ikon" aria-hidden="true"><use href="#i-x"/></svg>
+      </button>
+    </div>
+
+
+    <!-- =====================================================
+         ALAT 1 · CATATAN UANG  (logika: js/uang.js)
+         ===================================================== -->
+    <section class="halaman" id="halaman-uang" aria-labelledby="judul-uang">
+      <div class="halaman__kepala">
+        <div>
+          <h2 id="judul-uang">Catatan Uang</h2>
+          <p class="halaman__sub">Pemasukan dan pengeluaran harian dalam Rupiah.</p>
+        </div>
+        <!-- Di HP tombol ini mengambang di kanan bawah -->
+        <button class="tombol tombol--utama tombol--fab" type="button" id="uang-tambah" aria-haspopup="dialog">
+          <svg class="ikon" aria-hidden="true"><use href="#i-tambah"/></svg>
+          <span>Catat</span>
+        </button>
+      </div>
+
+      <div class="pilih-bulan">
+        <button class="tombol-ikon" type="button" id="uang-bulan-sebelum" aria-label="Bulan sebelumnya">
+          <svg class="ikon" aria-hidden="true"><use href="#i-kiri"/></svg>
+        </button>
+        <div class="pilih-bulan__label">
+          <strong id="uang-bulan-label" aria-live="polite"></strong>
+          <button class="tautan-kecil" type="button" id="uang-bulan-ini" hidden>Kembali ke bulan ini</button>
+        </div>
+        <button class="tombol-ikon" type="button" id="uang-bulan-sesudah" aria-label="Bulan berikutnya">
+          <svg class="ikon" aria-hidden="true"><use href="#i-kanan"/></svg>
+        </button>
+      </div>
+
+      <div class="tata-uang">
+        <div class="kartu tata-uang__ringkasan">
+          <div class="ringkasan__dua">
+            <div class="ringkasan__kotak">
+              <span class="label-kecil">Pemasukan</span>
+              <strong class="angka angka--masuk" id="uang-total-masuk">Rp 0</strong>
+            </div>
+            <div class="ringkasan__kotak">
+              <span class="label-kecil">Pengeluaran</span>
+              <strong class="angka angka--keluar" id="uang-total-keluar">Rp 0</strong>
+            </div>
+          </div>
+          <div class="ringkasan__sisa">
+            <span class="label-kecil">Sisa (pemasukan − pengeluaran)</span>
+            <strong class="angka angka--besar" id="uang-sisa">Rp 0</strong>
+          </div>
+          <div class="anggaran" id="uang-anggaran"><!-- diisi oleh uang.js --></div>
+        </div>
+
+        <div class="kartu tata-uang__kategori">
+          <h3 class="kartu__judul">Pengeluaran per kategori</h3>
+          <ul class="kategori" id="uang-per-kategori"><!-- diisi oleh uang.js --></ul>
+        </div>
+
+        <div class="kartu tata-uang__daftar">
+          <div class="kartu__kepala">
+            <h3 class="kartu__judul">Riwayat transaksi</h3>
+            <span class="bantuan">Ketuk untuk mengubah</span>
+          </div>
+          <div id="uang-daftar"><!-- diisi oleh uang.js --></div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- =====================================================
+         ALAT 2 · DAFTAR TUGAS  (logika: js/tugas.js)
+         ===================================================== -->
+    <section class="halaman" id="halaman-tugas" aria-labelledby="judul-tugas" hidden>
+      <div class="halaman__kepala">
+        <div>
+          <h2 id="judul-tugas">Daftar Tugas</h2>
+          <p class="halaman__sub">Tulis yang harus dikerjakan, centang kalau sudah beres.</p>
+        </div>
+      </div>
+
+      <div class="tata-dua">
+        <div class="tata-dua__kiri">
+          <form class="kartu form-cepat" id="form-tugas" autocomplete="off" novalidate>
+            <label class="label" for="tugas-judul">Tugas baru</label>
+            <input id="tugas-judul" name="judul" maxlength="120" placeholder="contoh: Bayar listrik" enterkeyhint="done">
+            <div class="form-cepat__baris">
+              <div class="isian isian--lebar">
+                <label class="label-kecil" for="tugas-tenggat">Tenggat (opsional)</label>
+                <input type="date" id="tugas-tenggat" name="tenggat">
+              </div>
+              <label class="pilih-penting">
+                <input type="checkbox" name="penting">
+                <span class="pilih-penting__tampilan">
+                  <svg class="ikon" aria-hidden="true"><use href="#i-bintang"/></svg>
+                  Penting
+                </span>
+              </label>
+            </div>
+            <button class="tombol tombol--utama tombol--penuh" type="submit">
+              <svg class="ikon" aria-hidden="true"><use href="#i-tambah"/></svg>
+              Tambah tugas
+            </button>
+          </form>
+
+          <div class="kartu kemajuan" id="tugas-kemajuan" hidden><!-- diisi oleh tugas.js --></div>
+        </div>
+
+        <div class="tata-dua__kanan">
+          <div class="kartu">
+            <div class="segmen-tombol saring" id="tugas-saring" role="group" aria-label="Tampilkan tugas">
+              <button type="button" data-saring="aktif" aria-pressed="true">Belum <span class="saring__jumlah" id="tugas-jumlah-aktif">0</span></button>
+              <button type="button" data-saring="selesai" aria-pressed="false">Selesai <span class="saring__jumlah" id="tugas-jumlah-selesai">0</span></button>
+              <button type="button" data-saring="semua" aria-pressed="false">Semua <span class="saring__jumlah" id="tugas-jumlah-semua">0</span></button>
+            </div>
+            <ul class="daftar" id="tugas-daftar"><!-- diisi oleh tugas.js --></ul>
+            <div class="kartu__aksi" id="tugas-aksi" hidden>
+              <button type="button" class="tombol tombol--teks-bahaya" id="tugas-hapus-selesai">
+                <svg class="ikon" aria-hidden="true"><use href="#i-sampah"/></svg>
+                Hapus tugas yang sudah selesai
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- =====================================================
+         ALAT 3 · DAFTAR BELANJA  (logika: js/belanja.js)
+         ===================================================== -->
+    <section class="halaman" id="halaman-belanja" aria-labelledby="judul-belanja" hidden>
+      <div class="halaman__kepala">
+        <div>
+          <h2 id="judul-belanja">Daftar Belanja</h2>
+          <p class="halaman__sub">Susun sebelum ke pasar atau minimarket, centang saat barang masuk keranjang.</p>
+        </div>
+      </div>
+
+      <div class="tata-dua">
+        <div class="tata-dua__kiri">
+          <form class="kartu form-cepat" id="form-belanja" autocomplete="off" novalidate>
+            <label class="label" for="belanja-nama">Barang</label>
+            <input id="belanja-nama" name="nama" maxlength="80" placeholder="contoh: Beras 5 kg" enterkeyhint="done">
+            <div class="form-cepat__baris">
+              <div class="isian isian--sempit">
+                <label class="label-kecil" for="belanja-jumlah">Jumlah</label>
+                <input type="number" id="belanja-jumlah" name="jumlah" min="1" max="999" step="1" value="1" inputmode="numeric">
+              </div>
+              <div class="isian isian--lebar">
+                <label class="label-kecil" for="belanja-harga">Harga satuan (opsional)</label>
+                <div class="isian-rupiah">
+                  <span aria-hidden="true">Rp</span>
+                  <input id="belanja-harga" name="harga" inputmode="numeric" data-rupiah placeholder="0">
+                </div>
+              </div>
+            </div>
+            <button class="tombol tombol--utama tombol--penuh" type="submit">
+              <svg class="ikon" aria-hidden="true"><use href="#i-tambah"/></svg>
+              Tambah ke daftar
+            </button>
+          </form>
+
+          <div class="kartu" id="belanja-ringkasan" hidden><!-- diisi oleh belanja.js --></div>
+        </div>
+
+        <div class="tata-dua__kanan">
+          <div class="kartu">
+            <div class="kartu__kepala">
+              <h3 class="kartu__judul">Daftar barang</h3>
+              <button type="button" class="tombol tombol--sekunder tombol--kecil" id="belanja-bagikan">
+                <svg class="ikon" aria-hidden="true"><use href="#i-bagikan"/></svg>
+                Bagikan
+              </button>
+            </div>
+            <ul class="daftar" id="belanja-daftar"><!-- diisi oleh belanja.js --></ul>
+            <div class="kartu__aksi" id="belanja-aksi" hidden>
+              <button type="button" class="tombol tombol--teks-bahaya" id="belanja-hapus-diambil">
+                <svg class="ikon" aria-hidden="true"><use href="#i-sampah"/></svg>
+                Hapus yang sudah dicentang
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- =====================================================
+         ALAT 4 · KALKULATOR PATUNGAN  (logika: js/patungan.js)
+         ===================================================== -->
+    <section class="halaman" id="halaman-patungan" aria-labelledby="judul-patungan" hidden>
+      <div class="halaman__kepala">
+        <div>
+          <h2 id="judul-patungan">Kalkulator Patungan</h2>
+          <p class="halaman__sub">Bagi tagihan makan atau nongkrong bareng dengan adil.</p>
+        </div>
+      </div>
+
+      <div class="kartu patungan-atas">
+        <div class="isian">
+          <label class="label-kecil" for="patungan-judul">Nama acara (opsional)</label>
+          <input id="patungan-judul" maxlength="60" placeholder="contoh: Makan malam bareng" autocomplete="off">
+        </div>
+        <div>
+          <span class="label-kecil" id="patungan-mode-label">Cara membagi</span>
+          <div class="segmen-tombol" id="patungan-mode" role="group" aria-labelledby="patungan-mode-label">
+            <button type="button" data-mode="rata" aria-pressed="true">Bagi rata</button>
+            <button type="button" data-mode="rinci" aria-pressed="false">Sesuai pesanan</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="tata-dua">
+        <div class="tata-dua__kiri">
+
+          <!-- Mode 1: bagi rata -->
+          <div class="kartu tumpuk" id="patungan-panel-rata">
+            <div class="isian">
+              <label class="label" for="rata-total">Total tagihan</label>
+              <div class="isian-rupiah isian-rupiah--besar">
+                <span aria-hidden="true">Rp</span>
+                <input id="rata-total" inputmode="numeric" data-rupiah placeholder="0" autocomplete="off">
+              </div>
+            </div>
+            <div class="isian">
+              <span class="label" id="rata-orang-label">Jumlah orang</span>
+              <div class="stepper" role="group" aria-labelledby="rata-orang-label">
+                <button type="button" class="tombol-ikon" id="rata-kurang" aria-label="Kurangi satu orang">
+                  <svg class="ikon" aria-hidden="true"><use href="#i-kurang"/></svg>
+                </button>
+                <input id="rata-orang" type="number" min="1" max="100" step="1" inputmode="numeric" aria-labelledby="rata-orang-label">
+                <button type="button" class="tombol-ikon" id="rata-tambah" aria-label="Tambah satu orang">
+                  <svg class="ikon" aria-hidden="true"><use href="#i-tambah"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="isian">
+              <label class="label" for="rata-bulatkan">Pembulatan per orang</label>
+              <select id="rata-bulatkan">
+                <option value="0">Tanpa pembulatan</option>
+                <option value="500">Bulatkan ke atas, kelipatan Rp 500</option>
+                <option value="1000">Bulatkan ke atas, kelipatan Rp 1.000</option>
+                <option value="5000">Bulatkan ke atas, kelipatan Rp 5.000</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Mode 2: sesuai pesanan -->
+          <div class="tumpuk" id="patungan-panel-rinci" hidden>
+            <div class="kartu">
+              <h3 class="kartu__judul">1. Siapa saja yang ikut?</h3>
+              <ul class="daftar-orang" id="patungan-orang"><!-- diisi oleh patungan.js --></ul>
+              <button type="button" class="tombol tombol--sekunder" id="patungan-tambah-orang">
+                <svg class="ikon" aria-hidden="true"><use href="#i-tambah"/></svg>
+                Tambah orang
+              </button>
+            </div>
+
+            <div class="kartu">
+              <h3 class="kartu__judul">2. Apa saja pesanannya?</h3>
+              <p class="bantuan">Isi menu dan harganya, lalu ketuk nama yang memesan. Pilih beberapa nama untuk pesanan yang dimakan bersama.</p>
+              <ul class="daftar-pesanan" id="patungan-pesanan"><!-- diisi oleh patungan.js --></ul>
+              <button type="button" class="tombol tombol--sekunder" id="patungan-tambah-pesanan">
+                <svg class="ikon" aria-hidden="true"><use href="#i-tambah"/></svg>
+                Tambah pesanan
+              </button>
+            </div>
+
+            <div class="kartu">
+              <h3 class="kartu__judul">3. Biaya tambahan (opsional)</h3>
+              <div class="kisi-isian">
+                <div class="isian">
+                  <label class="label-kecil" for="patungan-servis">Servis (%)</label>
+                  <input id="patungan-servis" inputmode="decimal" placeholder="0" autocomplete="off">
+                </div>
+                <div class="isian">
+                  <label class="label-kecil" for="patungan-pajak">Pajak (%)</label>
+                  <input id="patungan-pajak" inputmode="decimal" placeholder="0" autocomplete="off">
+                </div>
+                <div class="isian">
+                  <label class="label-kecil" for="patungan-diskon">Diskon / promo</label>
+                  <div class="isian-rupiah">
+                    <span aria-hidden="true">Rp</span>
+                    <input id="patungan-diskon" inputmode="numeric" data-rupiah placeholder="0" autocomplete="off">
+                  </div>
+                </div>
+                <div class="isian">
+                  <label class="label-kecil" for="patungan-lain">Ongkir / parkir</label>
+                  <div class="isian-rupiah">
+                    <span aria-hidden="true">Rp</span>
+                    <input id="patungan-lain" inputmode="numeric" data-rupiah placeholder="0" autocomplete="off">
+                  </div>
+                </div>
+              </div>
+              <p class="bantuan">Servis, pajak, dan diskon dibagi sesuai besar pesanan masing-masing. Ongkir/parkir dibagi rata ke semua yang memesan.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="tata-dua__kanan tata-dua__kanan--lengket">
+          <div class="kartu">
+            <div id="patungan-hasil"><!-- diisi oleh patungan.js --></div>
+            <div class="kartu__aksi">
+              <button type="button" class="tombol tombol--utama" id="patungan-bagikan">
+                <svg class="ikon" aria-hidden="true"><use href="#i-bagikan"/></svg>
+                Bagikan hasil
+              </button>
+              <button type="button" class="tombol tombol--teks" id="patungan-baru">
+                <svg class="ikon" aria-hidden="true"><use href="#i-ulang"/></svg>
+                Mulai baru
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+
+  <!-- =====================================================
+       DIALOG (jendela kecil yang muncul di atas halaman)
+       ===================================================== -->
+
+  <!-- Dialog: catat / ubah transaksi -->
+  <dialog class="dialog" id="dlg-transaksi" aria-labelledby="dlg-transaksi-judul">
+    <form class="dialog__isi" id="form-transaksi" autocomplete="off" novalidate>
+      <header class="dialog__kepala">
+        <h2 id="dlg-transaksi-judul">Catat transaksi</h2>
+        <button type="button" class="tombol-ikon" data-tutup aria-label="Tutup">
+          <svg class="ikon" aria-hidden="true"><use href="#i-x"/></svg>
+        </button>
+      </header>
+      <div class="dialog__badan">
+        <fieldset class="segmen">
+          <legend class="sr">Jenis transaksi</legend>
+          <label><input type="radio" name="jenis" value="keluar" checked><span>− Pengeluaran</span></label>
+          <label><input type="radio" name="jenis" value="masuk"><span>+ Pemasukan</span></label>
+        </fieldset>
+        <div class="isian">
+          <label class="label" for="transaksi-jumlah">Jumlah</label>
+          <div class="isian-rupiah isian-rupiah--besar">
+            <span aria-hidden="true">Rp</span>
+            <input id="transaksi-jumlah" name="jumlah" inputmode="numeric" data-rupiah placeholder="0" autofocus aria-describedby="transaksi-galat">
+          </div>
+          <p class="galat" id="transaksi-galat" hidden>Isi jumlahnya dulu, ya.</p>
+        </div>
+        <div class="isian">
+          <label class="label" for="transaksi-kategori">Kategori</label>
+          <select id="transaksi-kategori" name="kategori"></select>
+        </div>
+        <div class="isian">
+          <label class="label" for="transaksi-tanggal">Tanggal</label>
+          <input type="date" id="transaksi-tanggal" name="tanggal">
+        </div>
+        <div class="isian">
+          <label class="label" for="transaksi-catatan">Catatan <span class="opsional">(opsional)</span></label>
+          <input id="transaksi-catatan" name="catatan" maxlength="80" placeholder="contoh: Makan siang di warteg">
+        </div>
+      </div>
+      <footer class="dialog__kaki">
+        <button type="button" class="tombol tombol--teks-bahaya" id="transaksi-hapus" hidden>
+          <svg class="ikon" aria-hidden="true"><use href="#i-sampah"/></svg>
+          Hapus
+        </button>
+        <span class="spasi"></span>
+        <button type="button" class="tombol tombol--sekunder" data-tutup>Batal</button>
+        <button type="submit" class="tombol tombol--utama">Simpan</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <!-- Dialog: batas anggaran bulanan -->
+  <dialog class="dialog dialog--kecil" id="dlg-anggaran" aria-labelledby="dlg-anggaran-judul">
+    <form class="dialog__isi" id="form-anggaran" autocomplete="off" novalidate>
+      <header class="dialog__kepala">
+        <h2 id="dlg-anggaran-judul">Anggaran bulanan</h2>
+        <button type="button" class="tombol-ikon" data-tutup aria-label="Tutup">
+          <svg class="ikon" aria-hidden="true"><use href="#i-x"/></svg>
+        </button>
+      </header>
+      <div class="dialog__badan">
+        <p class="bantuan">Batas pengeluaran setiap bulan. Kosongkan lalu simpan untuk mematikan.</p>
+        <div class="isian">
+          <label class="label" for="anggaran-jumlah">Batas per bulan</label>
+          <div class="isian-rupiah isian-rupiah--besar">
+            <span aria-hidden="true">Rp</span>
+            <input id="anggaran-jumlah" name="jumlah" inputmode="numeric" data-rupiah placeholder="0" autofocus>
+          </div>
+        </div>
+      </div>
+      <footer class="dialog__kaki">
+        <span class="spasi"></span>
+        <button type="button" class="tombol tombol--sekunder" data-tutup>Batal</button>
+        <button type="submit" class="tombol tombol--utama">Simpan</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <!-- Dialog: ubah tugas -->
+  <dialog class="dialog" id="dlg-tugas" aria-labelledby="dlg-tugas-judul">
+    <form class="dialog__isi" id="form-ubah-tugas" autocomplete="off" novalidate>
+      <header class="dialog__kepala">
+        <h2 id="dlg-tugas-judul">Ubah tugas</h2>
+        <button type="button" class="tombol-ikon" data-tutup aria-label="Tutup">
+          <svg class="ikon" aria-hidden="true"><use href="#i-x"/></svg>
+        </button>
+      </header>
+      <div class="dialog__badan">
+        <div class="isian">
+          <label class="label" for="ubah-tugas-judul">Tugas</label>
+          <input id="ubah-tugas-judul" name="judul" maxlength="120" aria-describedby="ubah-tugas-galat">
+          <p class="galat" id="ubah-tugas-galat" hidden>Nama tugas tidak boleh kosong.</p>
+        </div>
+        <div class="isian">
+          <label class="label" for="ubah-tugas-tenggat">Tenggat <span class="opsional">(opsional)</span></label>
+          <input type="date" id="ubah-tugas-tenggat" name="tenggat">
+        </div>
+        <label class="baris-centang"><input type="checkbox" name="penting"> Tandai penting</label>
+        <label class="baris-centang"><input type="checkbox" name="selesai"> Sudah selesai</label>
+      </div>
+      <footer class="dialog__kaki">
+        <button type="button" class="tombol tombol--teks-bahaya" id="ubah-tugas-hapus">
+          <svg class="ikon" aria-hidden="true"><use href="#i-sampah"/></svg>
+          Hapus
+        </button>
+        <span class="spasi"></span>
+        <button type="button" class="tombol tombol--sekunder" data-tutup>Batal</button>
+        <button type="submit" class="tombol tombol--utama">Simpan</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <!-- Dialog: ubah barang belanja -->
+  <dialog class="dialog" id="dlg-belanja" aria-labelledby="dlg-belanja-judul">
+    <form class="dialog__isi" id="form-ubah-belanja" autocomplete="off" novalidate>
+      <header class="dialog__kepala">
+        <h2 id="dlg-belanja-judul">Ubah barang</h2>
+        <button type="button" class="tombol-ikon" data-tutup aria-label="Tutup">
+          <svg class="ikon" aria-hidden="true"><use href="#i-x"/></svg>
+        </button>
+      </header>
+      <div class="dialog__badan">
+        <div class="isian">
+          <label class="label" for="ubah-belanja-nama">Barang</label>
+          <input id="ubah-belanja-nama" name="nama" maxlength="80" aria-describedby="ubah-belanja-galat">
+          <p class="galat" id="ubah-belanja-galat" hidden>Nama barang tidak boleh kosong.</p>
+        </div>
+        <div class="form-cepat__baris">
+          <div class="isian isian--sempit">
+            <label class="label" for="ubah-belanja-jumlah">Jumlah</label>
+            <input type="number" id="ubah-belanja-jumlah" name="jumlah" min="1" max="999" step="1" inputmode="numeric">
+          </div>
+          <div class="isian isian--lebar">
+            <label class="label" for="ubah-belanja-harga">Harga satuan</label>
+            <div class="isian-rupiah">
+              <span aria-hidden="true">Rp</span>
+              <input id="ubah-belanja-harga" name="harga" inputmode="numeric" data-rupiah placeholder="0">
+            </div>
+          </div>
+        </div>
+        <label class="baris-centang"><input type="checkbox" name="diambil"> Sudah masuk keranjang</label>
+      </div>
+      <footer class="dialog__kaki">
+        <button type="button" class="tombol tombol--teks-bahaya" id="ubah-belanja-hapus">
+          <svg class="ikon" aria-hidden="true"><use href="#i-sampah"/></svg>
+          Hapus
+        </button>
+        <span class="spasi"></span>
+        <button type="button" class="tombol tombol--sekunder" data-tutup>Batal</button>
+        <button type="submit" class="tombol tombol--utama">Simpan</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <!-- Dialog: kelola data (cadangan, pulihkan, hapus) -->
+  <dialog class="dialog" id="dlg-data" aria-labelledby="dlg-data-judul" data-tutup-luar>
+    <div class="dialog__isi">
+      <header class="dialog__kepala">
+        <h2 id="dlg-data-judul">Kelola data</h2>
+        <button type="button" class="tombol-ikon" data-tutup aria-label="Tutup">
+          <svg class="ikon" aria-hidden="true"><use href="#i-x"/></svg>
+        </button>
+      </header>
+      <div class="dialog__badan">
+        <p class="info-kotak">
+          Data hanya tersimpan di browser ini dan tidak dikirim ke mana pun.
+          Kalau riwayat/cache browser dibersihkan atau ganti HP, data bisa hilang. Jadi, sesekali unduh cadangan.
+        </p>
+        <p class="statistik" id="data-statistik"></p>
+
+        <section class="bagian-data" aria-labelledby="data-judul-cadangan">
+          <h3 id="data-judul-cadangan">Cadangan</h3>
+          <div class="tumpuk-tombol">
+            <button type="button" class="tombol tombol--utama" id="data-ekspor">
+              <svg class="ikon" aria-hidden="true"><use href="#i-unduh"/></svg>
+              Unduh cadangan (.json)
+            </button>
+            <button type="button" class="tombol tombol--sekunder" id="data-impor">
+              <svg class="ikon" aria-hidden="true"><use href="#i-unggah"/></svg>
+              Pulihkan dari file cadangan
+            </button>
+            <input type="file" id="data-impor-file" accept=".json,application/json" hidden>
+            <button type="button" class="tombol tombol--sekunder" id="data-csv">
+              <svg class="ikon" aria-hidden="true"><use href="#i-tabel"/></svg>
+              Unduh transaksi untuk Excel (.csv)
+            </button>
+          </div>
+        </section>
+
+        <section class="bagian-data" aria-labelledby="data-judul-hapus">
+          <h3 id="data-judul-hapus">Hapus data</h3>
+          <div class="kisi-tombol">
+            <button type="button" class="tombol tombol--sekunder" data-hapus="uang">Hapus catatan uang</button>
+            <button type="button" class="tombol tombol--sekunder" data-hapus="tugas">Hapus daftar tugas</button>
+            <button type="button" class="tombol tombol--sekunder" data-hapus="belanja">Hapus daftar belanja</button>
+            <button type="button" class="tombol tombol--sekunder" data-hapus="patungan">Kosongkan patungan</button>
+          </div>
+          <button type="button" class="tombol tombol--bahaya tombol--penuh" data-hapus="semua">
+            <svg class="ikon" aria-hidden="true"><use href="#i-sampah"/></svg>
+            Hapus semua data
+          </button>
+        </section>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Dialog: konfirmasi (dipakai bersama, isinya diatur lewat Inti.konfirmasi) -->
+  <dialog class="dialog dialog--kecil dialog--tengah" id="dlg-konfirmasi" aria-labelledby="konfirmasi-judul" aria-describedby="konfirmasi-pesan">
+    <form class="dialog__isi" method="dialog">
+      <div class="dialog__badan dialog__badan--konfirmasi">
+        <h2 id="konfirmasi-judul">Yakin?</h2>
+        <p id="konfirmasi-pesan"></p>
+      </div>
+      <footer class="dialog__kaki">
+        <span class="spasi"></span>
+        <button type="submit" value="batal" class="tombol tombol--sekunder" autofocus>Batal</button>
+        <button type="submit" value="ya" class="tombol tombol--bahaya" id="konfirmasi-ya">Hapus</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <!-- Tempat notifikasi kecil (toast) -->
+  <div class="toast-wadah" id="toast" role="status" aria-live="polite"></div>
+
+</body>
+</html>
