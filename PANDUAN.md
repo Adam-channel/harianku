@@ -19,9 +19,13 @@ Tidak perlu instalasi, akun, atau internet.
 - **Di HP, sebagai aplikasi:** lihat bagian berikut.
 - **Pratinjau dari Claude:** konfigurasi `web-harian` di `.claude/launch.json` (port 8766).
 
+### Versi online
+
+Harianku sudah online di **https://adam-channel.github.io/harianku/** (GitHub Pages, kodenya di repo publik https://github.com/Adam-channel/harianku). Data yang dicatat di alamat ini tersimpan di browser HP/laptop masing-masing, tidak ikut terunggah ke GitHub.
+
 ### Pasang di HP (mode aplikasi)
 
-Harianku bisa dipasang di layar utama dan dibuka seperti aplikasi, juga tanpa internet. Syaratnya, folder `web-harian` harus ditaruh online dulu di hosting statis gratis yang memakai `https://`, misalnya GitHub Pages, Netlify, atau Cloudflare Pages. Setelah itu buka alamatnya di HP:
+Harianku bisa dipasang di layar utama dan dibuka seperti aplikasi, juga tanpa internet. Fitur ini butuh alamat `https://` seperti versi online di atas. Buka alamatnya di HP:
 
 - **Android (Chrome):** ketuk tombol **Pasang** yang muncul di halaman, atau menu ⋮ lalu **Instal aplikasi / Tambahkan ke layar utama**. Tekan lama ikonnya untuk pintasan langsung ke Uang, Tugas, Belanja, atau Patungan.
 - **iPhone (Safari):** tombol **Bagikan** lalu **Tambah ke Layar Utama**.
@@ -30,6 +34,21 @@ Harianku bisa dipasang di layar utama dan dibuka seperti aplikasi, juga tanpa in
 Cukup dibuka sekali saat online, setelah itu aplikasi tetap terbuka walau tidak ada internet. Kalau file di hosting diperbarui, versi baru otomatis terambil saat HP sedang online.
 
 Fitur pasang dan offline ini hanya aktif lewat alamat `https://` (atau `localhost`). Saat dibuka dengan klik dua kali, fitur ini diam saja. Itu normal, karena versi file memang sudah bisa dipakai tanpa internet.
+
+### Memperbarui versi online
+
+Setelah mengubah file di folder `web-harian`, unggah perubahannya ke repo. Situs ikut diperbarui sekitar 1 menit kemudian.
+
+- **Lewat browser:** buka https://github.com/Adam-channel/harianku, masuk ke folder file yang diubah (misalnya `js`), pilih **Add file → Upload files**, seret file barunya, lalu klik **Commit changes**.
+- **Lewat terminal** (di folder `web-harian`, yang sudah terhubung ke repo lewat folder tersembunyi `.git`):
+
+  ```
+  git add -A
+  git commit -m "Perbarui Harianku"
+  git push
+  ```
+
+HP yang sudah memasang aplikasinya mengambil versi baru otomatis saat sedang online.
 
 Cara pakai singkat:
 - Ketuk sebuah baris (transaksi, tugas, barang) untuk **mengubah**.
