@@ -16,7 +16,7 @@
    VERSI (misalnya 'harianku-v2') supaya cache lama dibersihkan.
    ============================================================== */
 
-const VERSI = 'harianku-v1';
+const VERSI = 'harianku-v2';
 
 const BERKAS = [
   './index.html',

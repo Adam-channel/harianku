@@ -32,12 +32,37 @@ const Data = (() => {
   }
 
 
-  /* STATISTIK ----------------------------------------------------- */
+  /* STATISTIK & PENGINGAT CADANGAN -------------------------------- */
+  const PENGINGAT_HARI = 14;   // ingatkan kalau cadangan terakhir lebih lama dari ini
+
+  const banyak = (kunci) => {
+    const isi = Inti.muat(kunci, []);
+    return Array.isArray(isi) ? isi.length : 0;
+  };
+
+  function teksCadangan(waktu) {
+    if (!waktu) return 'Belum pernah dicadangkan';
+    const tanggal = Inti.keTeks(new Date(waktu));
+    const beda = -Inti.selisihHari(tanggal);
+    if (beda <= 0) return 'Dicadangkan hari ini';
+    if (beda === 1) return 'Dicadangkan kemarin';
+    if (beda < 31) return `Dicadangkan ${beda} hari lalu`;
+    return 'Dicadangkan ' + Inti.tanggalPendek(tanggal);
+  }
+
+  // Perbarui tulisan "cadangan terakhir" dan titik pengingat di sidebar/bilah atas
+  function perbaruiInfoCadangan() {
+    const waktu = Number(Inti.muat('cadanganTerakhir', 0)) || 0;
+    const adaData = banyak('transaksi') + banyak('tugas') + banyak('belanja') > 0;
+    const lama = !waktu || Date.now() - waktu > PENGINGAT_HARI * 86400000;
+    document.querySelectorAll('[data-info-cadangan]').forEach((e) => { e.textContent = teksCadangan(waktu); });
+    document.querySelectorAll('[data-pengingat-cadangan]').forEach((e) => { e.hidden = !(adaData && lama); });
+  }
+
   function buka() {
-    const n = (x) => (Array.isArray(x) ? x.length : 0);
     const kb = Math.max(1, Math.round(Inti.ukuranData() / 1024));
-    el.statistik.textContent = `Tersimpan: ${n(Inti.muat('transaksi', []))} transaksi, ${n(Inti.muat('tugas', []))} tugas, `
-      + `${n(Inti.muat('belanja', []))} barang belanja (± ${kb} KB).`;
+    el.statistik.textContent = `${banyak('transaksi')} transaksi, ${banyak('tugas')} tugas, ${banyak('belanja')} barang (± ${kb} KB)`;
+    perbaruiInfoCadangan();
     Inti.bukaDialog(el.dlg);
   }
 
@@ -55,6 +80,8 @@ const Data = (() => {
   function ekspor() {
     const isi = JSON.stringify(buatCadangan(), null, 2);
     Inti.unduhFile(`harianku-cadangan-${Inti.hariIni()}.json`, isi, 'application/json');
+    Inti.simpan('cadanganTerakhir', Date.now());
+    perbaruiInfoCadangan();
     selesaiDanTutup('File cadangan diunduh. Simpan di tempat aman, misalnya Google Drive.');
   }
 
@@ -145,7 +172,8 @@ const Data = (() => {
   function mulai() {
     el = { dlg: $('dlg-data'), statistik: $('data-statistik'), file: $('data-impor-file') };
 
-    $('tombol-data').addEventListener('click', buka);
+    // Tombol "Kelola data" ada dua: di sidebar (laptop) dan di bilah atas (HP)
+    document.querySelectorAll('[data-buka-data]').forEach((b) => b.addEventListener('click', buka));
     $('data-ekspor').addEventListener('click', ekspor);
     $('data-impor').addEventListener('click', () => el.file.click());
     el.file.addEventListener('change', () => {
@@ -160,5 +188,5 @@ const Data = (() => {
     });
   }
 
-  return { mulai, buatCadangan, buatCsv };
+  return { mulai, buatCadangan, buatCsv, perbaruiInfoCadangan };
 })();

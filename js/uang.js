@@ -16,28 +16,29 @@ const Uang = (() => {
   'use strict';
 
   /* KATEGORI ------------------------------------------------------
-     Silakan ubah nama/ikon atau tambah baris baru.
+     Silakan ubah nama/warna atau tambah baris baru. "warna" dipakai
+     untuk titik penanda dan bar per kategori.
      Jangan mengganti "id" yang sudah terpakai, karena id itulah yang
      tersimpan di data transaksi. */
   const KATEGORI = {
     keluar: [
-      { id: 'makan',      nama: 'Makan & minum',      ikon: '🍜' },
-      { id: 'transport',  nama: 'Transportasi',       ikon: '🛵' },
-      { id: 'belanja',    nama: 'Belanja harian',     ikon: '🛒' },
-      { id: 'tagihan',    nama: 'Tagihan & cicilan',  ikon: '🧾' },
-      { id: 'pulsa',      nama: 'Pulsa & internet',   ikon: '📱' },
-      { id: 'kesehatan',  nama: 'Kesehatan',          ikon: '💊' },
-      { id: 'hiburan',    nama: 'Hiburan',            ikon: '🎬' },
-      { id: 'pendidikan', nama: 'Pendidikan',         ikon: '📚' },
-      { id: 'sedekah',    nama: 'Sedekah & hadiah',   ikon: '🤲' },
-      { id: 'lain-keluar', nama: 'Lainnya',           ikon: '📦' },
+      { id: 'makan',       nama: 'Makan & minum',     warna: '#D9773B' },
+      { id: 'transport',   nama: 'Transportasi',      warna: '#3D7BD9' },
+      { id: 'belanja',     nama: 'Belanja harian',    warna: '#2E9E6B' },
+      { id: 'tagihan',     nama: 'Tagihan & cicilan', warna: '#7A5CC7' },
+      { id: 'pulsa',       nama: 'Pulsa & internet',  warna: '#2A9DB5' },
+      { id: 'kesehatan',   nama: 'Kesehatan',         warna: '#D64F4F' },
+      { id: 'hiburan',     nama: 'Hiburan',           warna: '#C9558F' },
+      { id: 'pendidikan',  nama: 'Pendidikan',        warna: '#D4A02A' },
+      { id: 'sedekah',     nama: 'Sedekah & hadiah',  warna: '#6F9E3A' },
+      { id: 'lain-keluar', nama: 'Lainnya',           warna: '#8A94A6' },
     ],
     masuk: [
-      { id: 'gaji',       nama: 'Gaji',               ikon: '💼' },
-      { id: 'usaha',      nama: 'Usaha & penjualan',  ikon: '🏪' },
-      { id: 'bonus',      nama: 'Bonus & hadiah',     ikon: '🎁' },
-      { id: 'kiriman',    nama: 'Kiriman / transfer', ikon: '💸' },
-      { id: 'lain-masuk', nama: 'Lainnya',            ikon: '📦' },
+      { id: 'gaji',        nama: 'Gaji',               warna: '#2E9E6B' },
+      { id: 'usaha',       nama: 'Usaha & penjualan',  warna: '#3D7BD9' },
+      { id: 'bonus',       nama: 'Bonus & hadiah',     warna: '#D4A02A' },
+      { id: 'kiriman',     nama: 'Kiriman / transfer', warna: '#7A5CC7' },
+      { id: 'lain-masuk',  nama: 'Lainnya',            warna: '#8A94A6' },
     ],
   };
 
@@ -53,7 +54,7 @@ const Uang = (() => {
   function cariKategori(id) {
     return KATEGORI.keluar.find((k) => k.id === id)
       || KATEGORI.masuk.find((k) => k.id === id)
-      || { id, nama: 'Lainnya', ikon: '📦' };
+      || { id, nama: 'Lainnya', warna: '#8A94A6' };
   }
 
 
@@ -82,8 +83,10 @@ const Uang = (() => {
   /* TAMPILAN ------------------------------------------------------ */
   function render() {
     const bulanIni = Inti.hariIni().slice(0, 7);
+    const bulanBerjalan = bulanAktif === bulanIni;
     el.bulanLabel.textContent = Inti.namaBulan(bulanAktif);
-    el.bulanIni.hidden = bulanAktif === bulanIni;
+    el.bulanIni.hidden = bulanBerjalan;
+    el.sisaLabel.textContent = bulanBerjalan ? 'Sisa bulan ini' : 'Sisa ' + Inti.namaBulan(bulanAktif);
 
     const diBulan = transaksi.filter((t) => t.tanggal.slice(0, 7) === bulanAktif);
     let masuk = 0;
@@ -97,50 +100,47 @@ const Uang = (() => {
     el.totalMasuk.textContent = Inti.rupiah(masuk);
     el.totalKeluar.textContent = Inti.rupiah(keluar);
     el.sisa.textContent = Inti.rupiah(sisa);
-    el.sisa.classList.toggle('angka--keluar', sisa < 0);
+    el.sisa.classList.toggle('nilai-minus', sisa < 0);
 
-    renderAnggaran(keluar, bulanAktif === bulanIni);
+    renderAnggaran(keluar, bulanBerjalan);
     renderKategori(diBulan, keluar);
     Inti.jagaFokus(el.daftar, () => renderDaftar(diBulan));
   }
 
   function renderAnggaran(keluar, bulanBerjalan) {
     if (!anggaran) {
-      el.anggaran.innerHTML = `
-        <div class="anggaran__kepala">
-          <span class="label-kecil">Batas anggaran bulanan</span>
-          <button type="button" class="tombol tombol--teks tombol--kecil" data-aksi="atur-anggaran">Atur</button>
-        </div>
-        <p class="bantuan">Belum diatur. Pasang batas supaya tahu sisa jatah per hari.</p>`;
+      el.anggaran.className = 'anggaran anggaran--kosong';
+      el.anggaran.innerHTML = `<span>Belum ada batas anggaran bulanan.</span>
+        <button type="button" class="tautan" data-aksi="atur-anggaran">Atur anggaran</button>`;
       return;
     }
 
     const persen = Math.round((keluar / anggaran) * 100);
     const sisa = anggaran - keluar;
-    const warna = persen >= 100 ? 'merah' : persen >= 80 ? 'oranye' : 'hijau';
-    const keterangan = sisa >= 0
-      ? `Terpakai ${persen}% · sisa ${Inti.rupiah(sisa)}`
-      : `Lewat ${Inti.rupiah(-sisa)} dari batas`;
+    const warna = persen >= 100 ? ' bar--merah' : persen >= 80 ? ' bar--kuning' : '';
+
+    let keterangan = sisa >= 0
+      ? `<strong>${Inti.rupiah(keluar)}</strong> dari ${Inti.rupiah(anggaran)} terpakai (${persen}%).`
+      : `Lewat <strong>${Inti.rupiah(-sisa)}</strong> dari batas ${Inti.rupiah(anggaran)}.`;
 
     // Jatah per hari hanya dihitung untuk bulan yang sedang berjalan
-    let jatah = '';
     if (bulanBerjalan && sisa > 0) {
       const sekarang = new Date();
       const hariTerakhir = new Date(sekarang.getFullYear(), sekarang.getMonth() + 1, 0).getDate();
       const hariTersisa = hariTerakhir - sekarang.getDate() + 1;   // termasuk hari ini
-      jatah = `<p class="anggaran__jatah">Jatah per hari sampai akhir bulan: <strong>${Inti.rupiah(Math.floor(sisa / hariTersisa))}</strong></p>`;
+      keterangan += ` Sisa jatah <strong>${Inti.rupiah(Math.floor(sisa / hariTersisa))}</strong> per hari sampai akhir bulan.`;
     }
 
+    el.anggaran.className = 'anggaran';
     el.anggaran.innerHTML = `
-      <div class="anggaran__kepala">
-        <span class="label-kecil">Anggaran ${Inti.rupiah(anggaran)} / bulan</span>
-        <button type="button" class="tombol tombol--teks tombol--kecil" data-aksi="atur-anggaran">Ubah</button>
+      <div class="anggaran__atas">
+        <span class="anggaran__judul">Anggaran bulanan</span>
+        <button type="button" class="tautan" data-aksi="atur-anggaran">Ubah</button>
       </div>
-      <div class="bar bar--${warna}" role="progressbar" aria-label="Anggaran terpakai" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.min(persen, 100)}">
+      <div class="bar${warna}" role="progressbar" aria-label="Anggaran terpakai" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.min(persen, 100)}">
         <span style="width:${Math.min(persen, 100)}%"></span>
       </div>
-      <p class="anggaran__ket anggaran__ket--${warna}">${keterangan}</p>
-      ${jatah}`;
+      <p class="anggaran__ket">${keterangan}</p>`;
   }
 
   function renderKategori(diBulan, totalKeluar) {
@@ -149,29 +149,29 @@ const Uang = (() => {
       if (t.jenis === 'keluar') per.set(t.kategori, (per.get(t.kategori) || 0) + t.jumlah);
     }
     if (!per.size) {
-      el.perKategori.innerHTML = '<li class="kosong kosong--kecil">Belum ada pengeluaran di bulan ini.</li>';
+      el.perKategori.innerHTML = '<p class="kosong kosong--polos">Belum ada pengeluaran di bulan ini.</p>';
       return;
     }
-    el.perKategori.innerHTML = [...per]
-      .sort((a, b) => b[1] - a[1])
-      .map(([id, jumlah]) => {
-        const k = cariKategori(id);
-        const persen = Math.round((jumlah / totalKeluar) * 100);
-        return `<li>
-          <div class="kategori__atas">
-            <span class="kategori__nama">${k.ikon} ${Inti.esc(k.nama)}</span>
-            <span class="kategori__nilai">${Inti.rupiah(jumlah)} · ${persen}%</span>
-          </div>
-          <div class="bar" aria-hidden="true"><span style="width:${Math.max(persen, 2)}%"></span></div>
-        </li>`;
-      })
-      .join('');
+
+    const urut = [...per].sort((a, b) => b[1] - a[1]).map(([id, jumlah]) => ({ k: cariKategori(id), jumlah, persen: (jumlah / totalKeluar) * 100 }));
+    const segmen = urut.map((u) => `<span style="width:${u.persen.toFixed(2)}%;background:${u.k.warna}"></span>`).join('');
+    const legenda = urut.map((u) => `<li>
+        <span class="titik" style="background:${u.k.warna}" aria-hidden="true"></span>
+        <span class="legenda__nama">${Inti.esc(u.k.nama)}</span>
+        <span class="legenda__nilai">${Inti.rupiah(u.jumlah)}</span>
+        <span class="legenda__persen">${Math.round(u.persen)}%</span>
+      </li>`).join('');
+
+    el.perKategori.innerHTML = `<div class="bar-tumpuk" aria-hidden="true">${segmen}</div><ul class="legenda">${legenda}</ul>`;
   }
 
   function renderDaftar(diBulan) {
     if (!diBulan.length) {
-      el.daftar.innerHTML = `<p class="kosong"><span class="kosong__ikon" aria-hidden="true">🧾</span>
-        Belum ada transaksi di ${Inti.esc(Inti.namaBulan(bulanAktif))}.<br>Tekan <strong>Catat</strong> untuk menambah.</p>`;
+      el.daftar.innerHTML = `<div class="kosong">
+          <strong>Belum ada transaksi di ${Inti.esc(Inti.namaBulan(bulanAktif))}</strong>
+          Semua catatan tersimpan di perangkat ini.
+          <div><button type="button" class="tombol tombol--kedua tombol--kecil" data-aksi="tambah">Catat transaksi</button></div>
+        </div>`;
       return;
     }
 
@@ -186,7 +186,7 @@ const Uang = (() => {
     let html = '';
     for (const [tanggal, isi] of grup) {
       const keluarHari = isi.filter((t) => t.jenis === 'keluar').reduce((s, t) => s + t.jumlah, 0);
-      html += `<h4 class="grup-tanggal"><span>${Inti.esc(Inti.labelHari(tanggal))}</span>${keluarHari ? `<span>Keluar ${Inti.rupiah(keluarHari)}</span>` : ''}</h4>`;
+      html += `<div class="grup"><span>${Inti.esc(Inti.labelHari(tanggal))}</span>${keluarHari ? `<span>−${Inti.rupiah(keluarHari)}</span>` : ''}</div>`;
       html += `<ul class="daftar">${isi.map(itemHtml).join('')}</ul>`;
     }
     el.daftar.innerHTML = html;
@@ -198,16 +198,16 @@ const Uang = (() => {
     const sub = t.catatan ? k.nama : (t.jenis === 'masuk' ? 'Pemasukan' : 'Pengeluaran');
     const masuk = t.jenis === 'masuk';
     const id = Inti.esc(t.id);
-    return `<li>
-      <button type="button" class="item__utama" data-aksi="ubah" data-id="${id}">
-        <span class="item__ikon" aria-hidden="true">${k.ikon}</span>
-        <span class="item__teks">
-          <span class="item__judul">${Inti.esc(judul)}</span>
-          <span class="item__sub">${Inti.esc(sub)}</span>
+    return `<li class="baris">
+      <button type="button" class="baris__utama" data-aksi="ubah" data-id="${id}">
+        <span class="titik" style="background:${k.warna}" aria-hidden="true"></span>
+        <span class="baris__teks">
+          <span class="baris__judul">${Inti.esc(judul)}</span>
+          <span class="baris__sub">${Inti.esc(sub)}</span>
         </span>
-        <span class="item__nilai${masuk ? ' angka--masuk' : ''}">${masuk ? '+' : '−'}${Inti.rupiah(t.jumlah)}</span>
+        <span class="baris__nilai${masuk ? ' nilai-masuk' : ''}">${masuk ? '+' : '−'}${Inti.rupiah(t.jumlah)}</span>
       </button>
-      <button type="button" class="tombol-ikon tombol-ikon--bahaya" data-aksi="hapus" data-id="${id}" aria-label="Hapus ${Inti.esc(judul)} ${Inti.rupiah(t.jumlah)}">${Inti.ikon('sampah')}</button>
+      <button type="button" class="tombol-ikon baris__hapus" data-aksi="hapus" data-id="${id}" aria-label="Hapus ${Inti.esc(judul)} ${Inti.rupiah(t.jumlah)}">${Inti.ikon('sampah')}</button>
     </li>`;
   }
 
@@ -216,7 +216,7 @@ const Uang = (() => {
   function isiPilihanKategori(jenis, terpilih) {
     const pilihan = KATEGORI[jenis] || KATEGORI.keluar;
     const select = el.form.elements.kategori;
-    select.innerHTML = pilihan.map((k) => `<option value="${Inti.esc(k.id)}">${k.ikon} ${Inti.esc(k.nama)}</option>`).join('');
+    select.innerHTML = pilihan.map((k) => `<option value="${Inti.esc(k.id)}">${Inti.esc(k.nama)}</option>`).join('');
     select.value = pilihan.some((k) => k.id === terpilih) ? terpilih : pilihan[0].id;
   }
 
@@ -319,6 +319,7 @@ const Uang = (() => {
     el = {
       bulanLabel: $('uang-bulan-label'),
       bulanIni: $('uang-bulan-ini'),
+      sisaLabel: $('uang-sisa-label'),
       totalMasuk: $('uang-total-masuk'),
       totalKeluar: $('uang-total-keluar'),
       sisa: $('uang-sisa'),
@@ -343,10 +344,11 @@ const Uang = (() => {
       render();
     });
 
-    // Klik di daftar: ubah atau hapus transaksi
+    // Klik di daftar: ubah, hapus, atau tombol "Catat transaksi" saat kosong
     el.daftar.addEventListener('click', (e) => {
       const tombol = e.target.closest('[data-aksi]');
       if (!tombol) return;
+      if (tombol.dataset.aksi === 'tambah') { bukaForm(null); return; }
       const t = transaksi.find((x) => x.id === tombol.dataset.id);
       if (!t) return;
       if (tombol.dataset.aksi === 'ubah') bukaForm(t);

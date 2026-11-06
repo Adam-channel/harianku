@@ -58,46 +58,36 @@ const Belanja = (() => {
     Inti.jagaFokus(el.daftar, () => {
       el.daftar.innerHTML = barang.length
         ? [...belum, ...sudah].map(itemHtml).join('')
-        : '<li class="kosong"><span class="kosong__ikon" aria-hidden="true">🛒</span>Daftar masih kosong. Tambahkan barang yang mau dibeli.</li>';
+        : '<li class="kosong"><strong>Daftar belanja masih kosong</strong>Tambahkan barang yang mau dibeli di kotak di atas.</li>';
     });
     el.aksi.hidden = !sudah.length;
     el.bagikan.disabled = !barang.length;
+    el.ringkas.textContent = barang.length
+      ? `${barang.length} barang` + (belum.length ? ` · ${belum.length} belum dibeli` : ' · semua sudah di keranjang')
+      : '';
 
-    renderRingkasan(belum, sudah);
+    renderRingkasan(sudah);
   }
 
-  function renderRingkasan(belum, sudah) {
+  // Bilah bawah: total di keranjang + tombol catat ke Uang
+  function renderRingkasan(sudah) {
     el.ringkasan.hidden = !barang.length;
     if (!barang.length) return;
 
     const total = jumlahTotal(barang);
     const diKeranjang = jumlahTotal(sudah);
-    const persen = Math.round((sudah.length / barang.length) * 100);
     const tanpaHarga = barang.filter((b) => !b.harga).length;
+    const sub = [`dari perkiraan ${Inti.rupiah(total)}`, `${sudah.length}/${barang.length} barang`];
+    if (tanpaHarga) sub.push(`${tanpaHarga} tanpa harga`);
 
     el.ringkasan.innerHTML = `
-      <div class="ringkasan-belanja">
-        <div class="ringkasan__dua">
-          <div class="ringkasan__kotak">
-            <span class="label-kecil">Perkiraan total</span>
-            <strong class="angka">${Inti.rupiah(total)}</strong>
-            <span class="kecil">${barang.length} barang</span>
-          </div>
-          <div class="ringkasan__kotak">
-            <span class="label-kecil">Di keranjang</span>
-            <strong class="angka angka--masuk">${Inti.rupiah(diKeranjang)}</strong>
-            <span class="kecil">${sudah.length} dari ${barang.length} barang</span>
-          </div>
-        </div>
-        <div class="bar bar--hijau" role="progressbar" aria-label="Barang sudah di keranjang" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${persen}"><span style="width:${persen}%"></span></div>
-        ${tanpaHarga ? `<p class="bantuan">${tanpaHarga} barang belum diberi harga, jadi belum ikut dihitung.</p>` : ''}
-        <button type="button" class="tombol tombol--sekunder tombol--penuh" data-aksi="catat" ${sudah.length ? '' : 'disabled'}>
-          ${Inti.ikon('dompet')} Catat belanja ke Catatan Uang
-        </button>
-        <p class="bantuan">${sudah.length
-          ? 'Total barang yang sudah dicentang akan diisikan ke form Catatan Uang. Jumlahnya bisa disesuaikan dengan struk.'
-          : 'Centang barang yang sudah dibeli, lalu catat totalnya ke Catatan Uang.'}</p>
-      </div>`;
+      <div class="ringkasan-bawah__teks">
+        <span class="ringkasan-bawah__label">Di keranjang</span>
+        <span class="ringkasan-bawah__nilai">${Inti.rupiah(diKeranjang)}</span>
+        <span class="ringkasan-bawah__sub">${sub.join(' · ')}</span>
+      </div>
+      <button type="button" class="tombol tombol--utama tombol--kecil" data-aksi="catat" ${sudah.length ? '' : 'disabled'}
+        title="${sudah.length ? 'Isi form Catatan Uang dengan total barang yang sudah dicentang' : 'Centang barang yang sudah dibeli dulu'}">Catat ke Uang</button>`;
   }
 
   function itemHtml(b) {
@@ -105,20 +95,20 @@ const Belanja = (() => {
     const rincian = b.harga
       ? `${b.jumlah} × ${Inti.rupiah(b.harga)}`
       : (b.jumlah > 1 ? `Jumlah ${b.jumlah}` : '');
-    return `<li class="${b.diambil ? 'item--selesai' : ''}">
-      <label class="centang">
+    return `<li class="baris${b.diambil ? ' is-selesai' : ''}">
+      <label class="cek cek--kotak">
         <input type="checkbox" data-aksi="centang" data-id="${id}" ${b.diambil ? 'checked' : ''}>
-        <span class="centang__kotak" aria-hidden="true">${Inti.ikon('centang')}</span>
+        <span class="cek__tanda" aria-hidden="true">${Inti.ikon('centang')}</span>
         <span class="sr">Sudah di keranjang: ${Inti.esc(b.nama)}</span>
       </label>
-      <button type="button" class="item__utama" data-aksi="ubah" data-id="${id}">
-        <span class="item__teks">
-          <span class="item__judul">${Inti.esc(b.nama)}</span>
-          ${rincian ? `<span class="item__sub">${rincian}</span>` : ''}
+      <button type="button" class="baris__utama" data-aksi="ubah" data-id="${id}">
+        <span class="baris__teks">
+          <span class="baris__judul">${Inti.esc(b.nama)}</span>
+          ${rincian ? `<span class="baris__sub">${rincian}</span>` : ''}
         </span>
-        ${b.harga ? `<span class="item__nilai">${Inti.rupiah(subtotal(b))}</span>` : ''}
+        ${b.harga ? `<span class="baris__nilai">${Inti.rupiah(subtotal(b))}</span>` : ''}
       </button>
-      <button type="button" class="tombol-ikon tombol-ikon--bahaya" data-aksi="hapus" data-id="${id}" aria-label="Hapus ${Inti.esc(b.nama)}">${Inti.ikon('sampah')}</button>
+      <button type="button" class="tombol-ikon baris__hapus" data-aksi="hapus" data-id="${id}" aria-label="Hapus ${Inti.esc(b.nama)}">${Inti.ikon('sampah')}</button>
     </li>`;
   }
 
@@ -199,14 +189,14 @@ const Belanja = (() => {
     });
   }
 
-  // Kirim daftar ke WhatsApp, misalnya untuk titip belanja
+  // Kirim daftar ke WhatsApp, misalnya untuk titip belanja (*teks* = tebal di WhatsApp)
   function bagikan() {
     const belum = barang.filter((b) => !b.diambil);
     const isi = belum.length ? belum : barang;
     if (!isi.length) return;
-    const baris = isi.map((b) => `• ${b.nama}${b.jumlah > 1 ? ` (${b.jumlah})` : ''}`);
+    const baris = isi.map((b) => `- ${b.nama}${b.jumlah > 1 ? ` (${b.jumlah})` : ''}`);
     const total = jumlahTotal(isi);
-    const teks = `🛒 Daftar belanja\n${baris.join('\n')}${total ? `\n\nPerkiraan: ${Inti.rupiah(total)}` : ''}`;
+    const teks = `*Daftar belanja*\n${baris.join('\n')}${total ? `\n\nPerkiraan: ${Inti.rupiah(total)}` : ''}`;
     Inti.bagikanTeks(teks, 'Daftar belanja');
   }
 
@@ -248,6 +238,7 @@ const Belanja = (() => {
   function mulai() {
     el = {
       form: $('form-belanja'),
+      ringkas: $('belanja-ringkas'),
       ringkasan: $('belanja-ringkasan'),
       daftar: $('belanja-daftar'),
       aksi: $('belanja-aksi'),
@@ -259,6 +250,15 @@ const Belanja = (() => {
     muatData();
 
     el.form.addEventListener('submit', tambah);
+
+    // Tombol [-] dan [+] di samping jumlah
+    el.form.addEventListener('click', (e) => {
+      const tombol = e.target.closest('[data-langkah]');
+      if (!tombol) return;
+      const isian = el.form.elements.jumlah;
+      isian.value = Math.min(999, Math.max(1, bacaJumlah(isian.value) + Number(tombol.dataset.langkah)));
+    });
+
     el.bagikan.addEventListener('click', bagikan);
     $('belanja-hapus-diambil').addEventListener('click', hapusYangDiambil);
 

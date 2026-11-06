@@ -164,24 +164,24 @@ const Patungan = (() => {
   function renderOrang() {
     el.orang.innerHTML = s.orang.map((o, i) => {
       const id = Inti.esc(o.id);
-      return `<li>
-        <span class="nomor" aria-hidden="true">${i + 1}</span>
-        <label class="sr" for="orang-${id}">Nama orang ke-${i + 1}</label>
+      return `<li class="peserta">
+        <span class="peserta__no" aria-hidden="true">${i + 1}</span>
+        <label class="sr" for="orang-${id}">Nama peserta ke-${i + 1}</label>
         <input id="orang-${id}" data-orang="${id}" value="${Inti.esc(o.nama)}" maxlength="30" placeholder="Orang ${i + 1}" autocomplete="off">
-        <button type="button" class="tombol-ikon tombol-ikon--bahaya" data-hapus-orang="${id}" aria-label="Hapus ${Inti.esc(namaOrang(o, i))}" ${s.orang.length <= 1 ? 'disabled' : ''}>${Inti.ikon('sampah')}</button>
+        <button type="button" class="tombol-ikon" data-hapus-orang="${id}" aria-label="Hapus ${Inti.esc(namaOrang(o, i))}" ${s.orang.length <= 1 ? 'disabled' : ''}>${Inti.ikon('x')}</button>
       </li>`;
     }).join('');
   }
 
   function chipsHtml(p) {
     const semua = s.orang.every((o) => p.ikut.includes(o.id));
-    return s.orang.map((o, i) => `<button type="button" class="chip" data-chip="${Inti.esc(o.id)}" aria-pressed="${p.ikut.includes(o.id)}">${Inti.esc(namaOrang(o, i))}</button>`).join('')
-      + (s.orang.length > 1 ? `<button type="button" class="chip chip--semua" data-chip="semua" aria-pressed="${semua}">Semua</button>` : '');
+    return s.orang.map((o, i) => `<button type="button" class="pilih" data-chip="${Inti.esc(o.id)}" aria-pressed="${p.ikut.includes(o.id)}">${Inti.esc(namaOrang(o, i))}</button>`).join('')
+      + (s.orang.length > 1 ? `<button type="button" class="pilih pilih--semua" data-chip="semua" aria-pressed="${semua}">Semua</button>` : '');
   }
 
   function renderPesanan() {
     if (!s.pesanan.length) {
-      el.pesanan.innerHTML = '<li class="kosong kosong--kecil">Belum ada pesanan. Tambahkan menu yang dipesan satu per satu.</li>';
+      el.pesanan.innerHTML = '<li class="kosong kosong--polos">Belum ada pesanan. Tambahkan menu yang dipesan satu per satu.</li>';
       return;
     }
     el.pesanan.innerHTML = s.pesanan.map((p, i) => {
@@ -190,16 +190,19 @@ const Patungan = (() => {
         <div class="pesanan__baris">
           <div class="pesanan__nama">
             <label class="sr" for="pesanan-nama-${id}">Nama pesanan ke-${i + 1}</label>
-            <input id="pesanan-nama-${id}" data-isi="nama" value="${Inti.esc(p.nama)}" maxlength="60" placeholder="Menu, contoh: Nasi goreng" autocomplete="off">
+            <input id="pesanan-nama-${id}" data-isi="nama" value="${Inti.esc(p.nama)}" maxlength="60" placeholder="Nama menu" autocomplete="off">
           </div>
           <div class="pesanan__harga isian-rupiah">
             <span aria-hidden="true">Rp</span>
             <label class="sr" for="pesanan-harga-${id}">Harga pesanan ke-${i + 1}</label>
             <input id="pesanan-harga-${id}" data-isi="harga" data-rupiah inputmode="numeric" value="${p.harga ? Inti.angka(p.harga) : ''}" placeholder="Harga" autocomplete="off">
           </div>
-          <button type="button" class="tombol-ikon tombol-ikon--bahaya pesanan__hapus" data-aksi="hapus-pesanan" aria-label="Hapus pesanan ke-${i + 1}">${Inti.ikon('sampah')}</button>
+          <button type="button" class="tombol-ikon pesanan__hapus" data-aksi="hapus-pesanan" aria-label="Hapus pesanan ke-${i + 1}">${Inti.ikon('x')}</button>
         </div>
-        <div class="chips" role="group" aria-label="Siapa yang memesan" data-chips>${chipsHtml(p)}</div>
+        <div class="pesanan__pemesan">
+          <span class="pesanan__label" aria-hidden="true">Dipesan oleh</span>
+          <span class="pilihan" role="group" aria-label="Siapa yang memesan pesanan ke-${i + 1}" data-chips>${chipsHtml(p)}</span>
+        </div>
       </li>`;
     }).join('');
   }
@@ -226,75 +229,77 @@ const Patungan = (() => {
     else renderHasilRinci();
   }
 
+  // Kepala struk: judul acara (kalau ada) dan tanggal hari ini
+  function kepalaStruk() {
+    const judul = s.judul.trim();
+    const tanggal = Inti.tanggalPendek(Inti.hariIni());
+    return `<p class="struk__kepala">STRUK PATUNGAN</p>
+      <p class="struk__sub">${judul ? Inti.esc(judul) + ' · ' : ''}${Inti.esc(tanggal)}</p>
+      <hr class="struk__garis">`;
+  }
+
   function renderHasilRata() {
     if (!s.rata.total) {
-      el.hasil.innerHTML = '<h3 class="kartu__judul">Hasil</h3><p class="kosong kosong--kecil">Isi total tagihan untuk melihat bagian tiap orang.</p>';
+      el.hasil.innerHTML = kepalaStruk() + '<p class="struk__kosong">Isi total tagihan untuk melihat bagian tiap orang.</p>';
       return;
     }
     const h = hitungRata();
-    el.hasil.innerHTML = `
-      <h3 class="kartu__judul">Hasil</h3>
-      <span class="label-kecil">Setiap orang membayar</span>
-      <p class="hasil__besar">${Inti.rupiah(h.bayar)}</p>
-      <dl class="rincian">
-        <div><dt>Total tagihan</dt><dd>${Inti.rupiah(h.total)}</dd></div>
-        <div><dt>Dibagi</dt><dd>${h.orang} orang</dd></div>
-        ${h.lebih ? `<div><dt>Terkumpul</dt><dd>${Inti.rupiah(h.terkumpul)}</dd></div>
-        <div><dt>Kelebihan karena pembulatan</dt><dd>${Inti.rupiah(h.lebih)}</dd></div>` : ''}
-      </dl>`;
+    el.hasil.innerHTML = `${kepalaStruk()}
+      <div class="struk__baris"><span>Total tagihan</span><span>${Inti.rupiah(h.total)}</span></div>
+      <div class="struk__baris"><span>Dibagi</span><span>${h.orang} orang</span></div>
+      ${h.lebih ? `<div class="struk__baris"><span>Pembulatan</span><span>+${Inti.rupiah(h.lebih)}</span></div>
+      <div class="struk__baris"><span>Terkumpul</span><span>${Inti.rupiah(h.terkumpul)}</span></div>` : ''}
+      <hr class="struk__garis struk__garis--ganda">
+      <div class="struk__besar"><span>Per orang</span><strong>${Inti.rupiah(h.bayar)}</strong></div>`;
   }
 
   function renderHasilRinci() {
     const h = hitungRinci();
     if (!h.subtotal && !h.belumDibagi) {
-      el.hasil.innerHTML = '<h3 class="kartu__judul">Hasil</h3><p class="kosong kosong--kecil">Isi daftar orang dan pesanan, hasilnya muncul di sini.</p>';
+      el.hasil.innerHTML = kepalaStruk() + '<p class="struk__kosong">Isi peserta dan pesanan, hasilnya muncul di sini.</p>';
       return;
     }
-    const daftar = h.orang.map((o) => `<li>
-        <div>
-          <span class="hasil__nama">${Inti.esc(o.nama)}</span>
-          <span class="hasil__rinci">${o.item.length ? Inti.esc(o.item.join(', ')) : 'Belum ada pesanan'}</span>
-        </div>
-        <strong class="hasil__nilai">${Inti.rupiah(o.bayar)}</strong>
+    const orang = h.orang.map((o) => `<li>
+        <div class="struk__baris"><span>${Inti.esc(o.nama)}</span><span>${Inti.rupiah(o.bayar)}</span></div>
+        <div class="struk__rinci">${o.item.length ? Inti.esc(o.item.join(', ')) : 'Belum ada pesanan'}</div>
       </li>`).join('');
 
-    const baris = (label, nilai) => `<div><dt>${label}</dt><dd>${nilai}</dd></div>`;
-    el.hasil.innerHTML = `
-      <h3 class="kartu__judul">Yang harus dibayar</h3>
-      <ul class="hasil__daftar">${daftar}</ul>
-      <dl class="rincian">
-        ${baris('Subtotal pesanan', Inti.rupiah(h.subtotal))}
-        ${h.servis ? baris(`Servis ${Inti.angka(s.servis)}%`, Inti.rupiah(h.servis)) : ''}
-        ${h.pajak ? baris(`Pajak ${Inti.angka(s.pajak)}%`, Inti.rupiah(h.pajak)) : ''}
-        ${h.diskon ? baris('Diskon / promo', '−' + Inti.rupiah(h.diskon)) : ''}
-        ${h.biayaLain ? baris('Ongkir / parkir', Inti.rupiah(h.biayaLain)) : ''}
-        <div class="rincian__total"><dt>Total</dt><dd>${Inti.rupiah(h.total)}</dd></div>
-      </dl>
-      ${h.belumDibagi ? `<p class="peringatan-kecil">${Inti.rupiah(h.belumDibagi)} pesanan belum dipilih pemesannya, jadi belum ikut dihitung.</p>` : ''}`;
+    const baris = (label, nilai) => `<div class="struk__baris"><span>${label}</span><span>${nilai}</span></div>`;
+    el.hasil.innerHTML = `${kepalaStruk()}
+      <ul class="struk__orang">${orang}</ul>
+      <hr class="struk__garis">
+      ${baris('Subtotal', Inti.rupiah(h.subtotal))}
+      ${h.servis ? baris(`Servis ${Inti.angka(s.servis)}%`, Inti.rupiah(h.servis)) : ''}
+      ${h.pajak ? baris(`Pajak ${Inti.angka(s.pajak)}%`, Inti.rupiah(h.pajak)) : ''}
+      ${h.diskon ? baris('Diskon', '−' + Inti.rupiah(h.diskon)) : ''}
+      ${h.biayaLain ? baris('Ongkir/parkir', Inti.rupiah(h.biayaLain)) : ''}
+      <hr class="struk__garis struk__garis--ganda">
+      <div class="struk__baris struk__total"><span>Total</span><span>${Inti.rupiah(h.total)}</span></div>
+      ${h.belumDibagi ? `<p class="struk__catatan">${Inti.rupiah(h.belumDibagi)} pesanan belum dipilih pemesannya, jadi belum ikut dihitung.</p>` : ''}`;
   }
 
-  // Teks ringkasan untuk dibagikan ke grup WhatsApp
+  // Teks ringkasan untuk dibagikan ke grup WhatsApp (*teks* = tebal di WhatsApp)
   function teksBagikan() {
-    const judul = s.judul.trim() || 'Patungan';
-    const tanggal = Inti.tanggalPanjang(Inti.hariIni());
+    const judul = s.judul.trim();
+    const kepala = `*Patungan${judul ? ': ' + judul : ''}*\n${Inti.tanggalPanjang(Inti.hariIni())}`;
     if (s.mode === 'rata') {
       if (!s.rata.total) return '';
       const h = hitungRata();
-      return `🧾 ${judul}\n${tanggal}\n\nTotal ${Inti.rupiah(h.total)} dibagi ${h.orang} orang.\nPer orang: ${Inti.rupiah(h.bayar)}`;
+      return `${kepala}\n\nTotal ${Inti.rupiah(h.total)} dibagi ${h.orang} orang.\nPer orang: *${Inti.rupiah(h.bayar)}*`;
     }
     const h = hitungRinci();
     if (!h.subtotal) return '';
     const baris = h.orang
       .filter((o) => o.bayar > 0)
-      .map((o) => `• ${o.nama}: ${Inti.rupiah(o.bayar)}${o.item.length ? ` — ${o.item.join(', ')}` : ''}`);
+      .map((o) => `- ${o.nama}: ${Inti.rupiah(o.bayar)}${o.item.length ? ` (${o.item.join(', ')})` : ''}`);
     const tambahan = [
       h.servis ? `servis ${Inti.angka(s.servis)}%` : '',
       h.pajak ? `pajak ${Inti.angka(s.pajak)}%` : '',
       h.diskon ? `diskon ${Inti.rupiah(h.diskon)}` : '',
       h.biayaLain ? `ongkir/parkir ${Inti.rupiah(h.biayaLain)}` : '',
     ].filter(Boolean);
-    return `🧾 ${judul}\n${tanggal}\n\n${baris.join('\n')}\n\nTotal: ${Inti.rupiah(h.total)}`
-      + (tambahan.length ? `\n(sudah termasuk ${tambahan.join(', ')})` : '');
+    return `${kepala}\n\n${baris.join('\n')}\n\nTotal: *${Inti.rupiah(h.total)}*`
+      + (tambahan.length ? `\nSudah termasuk ${tambahan.join(', ')}.` : '');
   }
 
 
@@ -407,7 +412,7 @@ const Patungan = (() => {
       renderMode();
       renderHasil();
     });
-    el.judul.addEventListener('input', () => { s.judul = el.judul.value; simpanData(); });
+    el.judul.addEventListener('input', () => { s.judul = el.judul.value; simpanData(); renderHasil(); });   // judul tampil di struk
 
     // Bagi rata
     el.rataTotal.addEventListener('input', () => { s.rata.total = Inti.bacaRupiah(el.rataTotal.value); simpanData(); renderHasil(); });

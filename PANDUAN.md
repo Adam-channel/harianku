@@ -4,12 +4,12 @@ Harianku adalah satu halaman web berisi 4 alat untuk urusan sehari-hari:
 
 | Alat | Gunanya |
 |---|---|
-| **Uang** | Catat pemasukan & pengeluaran (Rupiah), lihat ringkasan per bulan, pengeluaran per kategori, dan batas anggaran + jatah per hari. |
-| **Tugas** | Daftar tugas dengan tenggat dan tanda *penting*. Ada label *Terlambat / Hari ini / Besok* dan lencana merah di menu. |
-| **Belanja** | Daftar belanja dengan jumlah & perkiraan harga. Centang saat masuk keranjang, lalu catat totalnya ke Uang atau bagikan daftarnya ke WhatsApp. |
-| **Patungan** | Bagi tagihan: *bagi rata* (dengan pembulatan) atau *sesuai pesanan* (servis, pajak, diskon, ongkir). Hasilnya bisa dibagikan ke grup. |
+| **Uang** | Catat pemasukan & pengeluaran (Rupiah), lihat sisa uang per bulan, pengeluaran per kategori, dan batas anggaran + jatah per hari. |
+| **Tugas** | Daftar tugas dengan tenggat dan tanda *penting*. Tenggat tampil sebagai *Terlambat / Hari ini / Besok*, dan jumlah tugas mendesak muncul di menu. |
+| **Belanja** | Daftar belanja dengan jumlah & perkiraan harga. Centang saat masuk keranjang (totalnya tampil di bilah bawah), lalu **Catat ke Uang** atau bagikan daftarnya ke WhatsApp. |
+| **Patungan** | Bagi tagihan: *bagi rata* (dengan pembulatan) atau *per pesanan* (servis, pajak, diskon, ongkir). Hasilnya tampil sebagai struk dan bisa dibagikan ke grup. |
 
-Tidak perlu instalasi, akun, atau internet.
+Tidak perlu instalasi, akun, atau internet. Di laptop menu ada di sidebar kiri, di HP menu ada di bawah layar. Tampilan gelap/terang mengikuti pengaturan perangkat.
 
 ---
 
@@ -52,8 +52,8 @@ HP yang sudah memasang aplikasinya mengambil versi baru otomatis saat sedang onl
 
 Cara pakai singkat:
 - Ketuk sebuah baris (transaksi, tugas, barang) untuk **mengubah**.
-- Ikon tempat sampah untuk **menghapus**. Setelah menghapus, tekan **Urungkan** di notifikasi bawah selama ±8 detik kalau salah hapus.
-- Tampilan gelap/terang otomatis mengikuti pengaturan HP/laptop.
+- **Menghapus:** di HP, ketuk barisnya lalu pilih **Hapus**. Di laptop, bisa juga lewat ikon tempat sampah yang muncul saat kursor diarahkan ke baris. Setelah menghapus, tekan **Urungkan** di notifikasi bawah selama ±8 detik kalau salah hapus.
+- Di HP, tombol bulat **+** di kanan bawah halaman Uang untuk mencatat transaksi.
 
 ## 2. Data: tersimpan di mana?
 
@@ -64,14 +64,16 @@ Semua data tersimpan di **localStorage browser** di perangkat itu sendiri. Data 
 - Data di HP, di laptop, dan di browser yang berbeda **terpisah**. Dibuka lewat file (klik dua kali) atau lewat alamat online juga dihitung terpisah.
 - Di iPhone, data aplikasi yang dipasang di layar utama terpisah dari data di Safari. Safari juga bisa menghapus data situs yang lama tidak dikunjungi, sedangkan versi yang dipasang jauh lebih aman dari hal itu.
 
-Tombol **Data** (kanan atas) berisi:
+**Kelola data** (tombol di bawah sidebar di laptop, atau ikon tabung di kanan atas HP) berisi:
 
 | Tombol | Fungsi |
 |---|---|
-| Unduh cadangan (.json) | Menyimpan semua data ke satu file. Simpan di Google Drive atau flashdisk. |
-| Pulihkan dari file cadangan | Mengembalikan data dari file cadangan. Data yang sekarang ada akan diganti. |
-| Unduh transaksi untuk Excel (.csv) | Semua transaksi dalam bentuk tabel untuk Excel atau Google Sheets. |
+| Unduh cadangan | Menyimpan semua data ke satu file .json. Simpan di Google Drive atau flashdisk. |
+| Pulihkan dari cadangan | Mengembalikan data dari file cadangan. Data yang sekarang ada akan diganti. |
+| Ekspor transaksi (.csv) | Semua transaksi dalam bentuk tabel untuk Excel atau Google Sheets. |
 | Hapus … / Hapus semua data | Menghapus data satu alat atau semuanya. Selalu ada konfirmasi dulu. |
+
+Tanggal cadangan terakhir tampil di sidebar dan di jendela Kelola data. Kalau sudah ada data tetapi belum dicadangkan atau cadangan terakhir lebih dari 14 hari lalu, muncul titik kuning sebagai pengingat.
 
 **Pindah ke perangkat lain:** *Unduh cadangan* di perangkat lama, lalu *Pulihkan* di perangkat baru.
 
@@ -105,17 +107,18 @@ Setelah file diubah dan disimpan, muat ulang halaman (**F5**). Kalau perubahan b
 
 | Ingin… | Ubah di |
 |---|---|
-| Ganti warna utama | `css/style.css` bagian 1: `--accent` (oranye) dan `--navy-900` (navy). |
-| Tambah/ubah kategori uang | `js/uang.js`, daftar `KATEGORI`. Boleh ubah `nama`/`ikon`, tapi **jangan ganti `id`** yang sudah terpakai. |
+| Ganti warna | `css/style.css` bagian 1 "Token desain": `--utama` (tombol utama, navy), `--merek` dan `--merek-tinta` (oranye logo & menu aktif), `--tinta` (teks). Warna mode gelap ada di bagian 7. |
+| Tambah/ubah kategori uang | `js/uang.js`, daftar `KATEGORI`. Boleh ubah `nama`/`warna`, tapi **jangan ganti `id`** yang sudah terpakai. |
+| Batas hari pengingat cadangan | `js/data.js`, `PENGINGAT_HARI` (bawaan 14). |
 | Excel menampilkan CSV dalam satu kolom | `js/data.js`, ganti `PEMISAH_CSV` dari `';'` ke `','`. Titik koma cocok untuk Excel dengan format wilayah Indonesia, termasuk laptop ini. |
 | Lama notifikasi "Urungkan" | `js/inti.js`, fungsi `toast` (8000 = 8 detik). |
 | Cara hitung pajak patungan | `js/patungan.js`, fungsi `hitungRinci`. Saat ini pajak dihitung dari subtotal + servis, seperti umumnya di resto Indonesia. |
 | Teks/judul di halaman | `index.html`. Teks yang muncul dari kode (pesan kosong, notifikasi) ada di file `js/` masing-masing alat. |
 | Ganti ikon aplikasi | Folder `ikon/`. Ganti file PNG dengan gambar berukuran sama (192×192, 512×512, dan 180×180 untuk iPhone). Versi *maskable* harus berlatar penuh tanpa sudut transparan, dengan gambar utama di tengah. |
-| Menambah file baru (supaya ikut bisa dibuka offline) | `sw.js`: tambahkan nama file ke daftar `BERKAS`, lalu naikkan `VERSI` (misalnya `'harianku-v2'`). |
+| Menambah file baru (supaya ikut bisa dibuka offline) | `sw.js`: tambahkan nama file ke daftar `BERKAS`, lalu naikkan `VERSI` (misalnya dari `'harianku-v2'` ke `'harianku-v3'`). |
 | Nama aplikasi di layar utama | `manifest.webmanifest` (`name`, `short_name`) dan `apple-mobile-web-app-title` di `index.html`. |
 
-Kunci localStorage yang dipakai (semuanya berawalan `harianku:`): `transaksi`, `anggaran`, `tugas`, `belanja`, `patungan`, `tab` (tab terakhir), `infoDitutup` (pesan sambutan sudah ditutup), `pasangDitutup` (tawaran pasang aplikasi sudah ditutup).
+Kunci localStorage yang dipakai (semuanya berawalan `harianku:`): `transaksi`, `anggaran`, `tugas`, `belanja`, `patungan`, `tab` (tab terakhir), `cadanganTerakhir` (waktu cadangan terakhir diunduh), `pasangDitutup` (tawaran pasang aplikasi sudah ditutup).
 
 ## 5. Kebutuhan
 

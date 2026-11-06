@@ -342,6 +342,16 @@ const Inti = (() => {
   }
 
 
+  // Buka pemilih tanggal bawaan browser untuk <input type="date"> yang disembunyikan
+  function bukaPemilihTanggal(input) {
+    if (typeof input.showPicker === 'function') {
+      try { input.showPicker(); return; } catch (e) { /* lanjut ke cara lama */ }
+    }
+    input.focus();
+    input.click();
+  }
+
+
   /* 8. SALIN, BAGIKAN, UNDUH ------------------------------------- */
   async function salinTeks(teks) {
     try {
@@ -398,7 +408,7 @@ const Inti = (() => {
     rupiah, angka, bacaRupiah, bacaDesimal,
     keTeks, hariIni, keTanggal, selisihHari, tanggalPanjang, tanggalPendek, labelHari, namaBulan,
     esc, buatId, ikon, jagaFokus, isiRupiah,
-    toast, tutupToast, bukaDialog, tutupDialog, konfirmasi,
+    toast, tutupToast, bukaDialog, tutupDialog, konfirmasi, bukaPemilihTanggal,
     salinTeks, bagikanTeks, unduhFile,
   };
 })();

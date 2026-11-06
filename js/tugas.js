@@ -54,15 +54,17 @@ const Tugas = (() => {
     return a.dibuat - b.dibuat;
   }
 
-  function tandaTenggat(t) {
+  // Teks tenggat berwarna: merah = terlambat, kuning = hari ini
+  function teksTenggat(t) {
     if (!t.tenggat) return '';
-    const tanggal = `<span class="tanda">${Inti.ikon('kalender')} ${Inti.esc(Inti.tanggalPendek(t.tenggat))}</span>`;
-    if (t.selesai) return tanggal;
-    const beda = Inti.selisihHari(t.tenggat);
-    if (beda < 0) return `<span class="tanda tanda--merah">Terlambat ${-beda} hari</span>`;
-    if (beda === 0) return '<span class="tanda tanda--oranye">Hari ini</span>';
-    if (beda === 1) return '<span class="tanda tanda--biru">Besok</span>';
-    return tanggal;
+    const tanggal = Inti.esc(Inti.tanggalPendek(t.tenggat));
+    if (!t.selesai) {
+      const beda = Inti.selisihHari(t.tenggat);
+      if (beda < 0) return `<span class="tenggat tenggat--telat">Terlambat ${-beda} hari</span>`;
+      if (beda === 0) return '<span class="tenggat tenggat--hari-ini">Hari ini</span>';
+      if (beda === 1) return '<span class="tenggat tenggat--besok">Besok</span>';
+    }
+    return `<span class="tenggat">${Inti.ikon('kalender')}${tanggal}</span>`;
   }
 
 
@@ -82,58 +84,56 @@ const Tugas = (() => {
     });
     el.aksi.hidden = !selesai.length;
 
-    renderKemajuan(aktif, selesai);
+    // Ringkasan di bawah judul, contoh "2 belum selesai · 1 terlambat"
+    const telat = aktif.filter((t) => t.tenggat && Inti.selisihHari(t.tenggat) < 0).length;
+    const hariIni = aktif.filter((t) => t.tenggat && Inti.selisihHari(t.tenggat) === 0).length;
+    const bagian = [];
+    if (tugas.length) bagian.push(aktif.length ? `${aktif.length} belum selesai` : 'Semua tugas selesai');
+    if (telat) bagian.push(`${telat} terlambat`);
+    if (hariIni) bagian.push(`${hariIni} jatuh tempo hari ini`);
+    el.ringkas.textContent = bagian.join(' · ');
 
-    // Lencana merah di navigasi: tugas terlambat + jatuh tempo hari ini
-    const mendesak = aktif.filter((t) => t.tenggat && Inti.selisihHari(t.tenggat) <= 0).length;
+    // Angka di menu: tugas terlambat + jatuh tempo hari ini
+    const mendesak = telat + hariIni;
     el.lencana.hidden = !mendesak;
     el.lencana.innerHTML = mendesak ? `${mendesak}<span class="sr"> tugas terlambat atau jatuh tempo hari ini</span>` : '';
   }
 
   function kosongHtml() {
-    let pesan = 'Belum ada tugas. Tulis tugas pertama di kolom <strong>Tugas baru</strong>.';
-    let ikon = '📝';
-    if (tugas.length && saring === 'aktif') { pesan = 'Semua tugas sudah beres. Mantap!'; ikon = '🎉'; }
-    if (tugas.length && saring === 'selesai') { pesan = 'Belum ada tugas yang selesai.'; ikon = '⏳'; }
-    return `<li class="kosong"><span class="kosong__ikon" aria-hidden="true">${ikon}</span>${pesan}</li>`;
-  }
-
-  function renderKemajuan(aktif, selesai) {
-    const total = aktif.length + selesai.length;
-    el.kemajuan.hidden = !total;
-    if (!total) return;
-    const persen = Math.round((selesai.length / total) * 100);
-    const telat = aktif.filter((t) => t.tenggat && Inti.selisihHari(t.tenggat) < 0).length;
-    const hariIni = aktif.filter((t) => t.tenggat && Inti.selisihHari(t.tenggat) === 0).length;
-    const penting = aktif.filter((t) => t.penting).length;
-    el.kemajuan.innerHTML = `
-      <div class="kemajuan__atas"><strong>${selesai.length} dari ${total} tugas selesai</strong><span>${persen}%</span></div>
-      <div class="bar bar--hijau" role="progressbar" aria-label="Tugas selesai" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${persen}"><span style="width:${persen}%"></span></div>
-      <div class="kemajuan__tanda">${[
-        telat ? `<span class="tanda tanda--merah">${telat} terlambat</span>` : '',
-        hariIni ? `<span class="tanda tanda--oranye">${hariIni} jatuh tempo hari ini</span>` : '',
-        penting ? `<span class="tanda">${penting} penting</span>` : '',
-      ].join('')}</div>`;
+    let judul = 'Belum ada tugas';
+    let teks = 'Tulis tugas di kotak di atas, lalu tekan Enter.';
+    if (tugas.length && saring === 'aktif') { judul = 'Tidak ada tugas tersisa'; teks = 'Semua tugas sudah selesai.'; }
+    if (tugas.length && saring === 'selesai') { judul = 'Belum ada tugas yang selesai'; teks = 'Centang tugas yang sudah dikerjakan.'; }
+    return `<li class="kosong"><strong>${judul}</strong>${teks}</li>`;
   }
 
   function itemHtml(t) {
     const id = Inti.esc(t.id);
-    const tenggat = tandaTenggat(t);
-    const bintang = t.penting ? `<span class="bintang">${Inti.ikon('bintang')}<span class="sr">Penting: </span></span>` : '';
-    return `<li class="${t.selesai ? 'item--selesai' : ''}">
-      <label class="centang">
+    const tenggat = teksTenggat(t);
+    return `<li class="baris${t.selesai ? ' is-selesai' : ''}">
+      <label class="cek cek--bulat">
         <input type="checkbox" data-aksi="centang" data-id="${id}" ${t.selesai ? 'checked' : ''}>
-        <span class="centang__kotak" aria-hidden="true">${Inti.ikon('centang')}</span>
+        <span class="cek__tanda" aria-hidden="true">${Inti.ikon('centang')}</span>
         <span class="sr">Selesai: ${Inti.esc(t.judul)}</span>
       </label>
-      <button type="button" class="item__utama" data-aksi="ubah" data-id="${id}">
-        <span class="item__teks">
-          <span class="item__judul">${bintang}${Inti.esc(t.judul)}</span>
-          ${tenggat ? `<span class="item__sub">${tenggat}</span>` : ''}
+      <button type="button" class="baris__utama" data-aksi="ubah" data-id="${id}">
+        <span class="baris__teks">
+          <span class="baris__judul">${Inti.esc(t.judul)}</span>
+          ${tenggat ? `<span class="baris__sub">${tenggat}</span>` : ''}
         </span>
+        ${t.penting ? `<span class="bintang">${Inti.ikon('bintang')}<span class="sr">Penting</span></span>` : ''}
       </button>
-      <button type="button" class="tombol-ikon tombol-ikon--bahaya" data-aksi="hapus" data-id="${id}" aria-label="Hapus tugas ${Inti.esc(t.judul)}">${Inti.ikon('sampah')}</button>
+      <button type="button" class="tombol-ikon baris__hapus" data-aksi="hapus" data-id="${id}" aria-label="Hapus tugas ${Inti.esc(t.judul)}">${Inti.ikon('sampah')}</button>
     </li>`;
+  }
+
+  // Tombol "Tenggat" di kotak tambah: menampilkan tanggal yang dipilih
+  function perbaruiTombolTenggat() {
+    const nilai = el.form.elements.tenggat.value;
+    el.tenggatNilai.textContent = nilai ? Inti.tanggalPendek(nilai) : 'Tenggat';
+    el.tenggatTombol.classList.toggle('alat--aktif', !!nilai);
+    el.tenggatTombol.setAttribute('aria-label', nilai ? `Tenggat ${Inti.tanggalPanjang(nilai)}, ubah` : 'Pilih tenggat');
+    el.tenggatHapus.hidden = !nilai;
   }
 
 
@@ -158,6 +158,7 @@ const Tugas = (() => {
     });
     simpanData();
     el.form.reset();
+    perbaruiTombolTenggat();
     if (saring === 'selesai') saring = 'aktif';
     render();
     f.judul.focus();   // siap mengetik tugas berikutnya
@@ -172,7 +173,7 @@ const Tugas = (() => {
     simpanData();
     render();
     if (selesai) {
-      Inti.toast('Tugas selesai 👍', {
+      Inti.toast('Tugas ditandai selesai', {
         aksi: 'Urungkan',
         onAksi: () => { t.selesai = false; t.selesaiPada = 0; simpanData(); render(); },
       });
@@ -245,7 +246,10 @@ const Tugas = (() => {
   function mulai() {
     el = {
       form: $('form-tugas'),
-      kemajuan: $('tugas-kemajuan'),
+      tenggatTombol: $('tugas-tenggat-tombol'),
+      tenggatNilai: $('tugas-tenggat-nilai'),
+      tenggatHapus: $('tugas-tenggat-hapus'),
+      ringkas: $('tugas-ringkas'),
       saring: $('tugas-saring'),
       jumlahAktif: $('tugas-jumlah-aktif'),
       jumlahSelesai: $('tugas-jumlah-selesai'),
@@ -260,6 +264,13 @@ const Tugas = (() => {
     muatData();
 
     el.form.addEventListener('submit', tambah);
+    el.tenggatTombol.addEventListener('click', () => Inti.bukaPemilihTanggal(el.form.elements.tenggat));
+    el.form.elements.tenggat.addEventListener('change', perbaruiTombolTenggat);
+    el.tenggatHapus.addEventListener('click', () => {
+      el.form.elements.tenggat.value = '';
+      perbaruiTombolTenggat();
+      el.tenggatTombol.focus();
+    });
 
     el.saring.addEventListener('click', (e) => {
       const b = e.target.closest('[data-saring]');
@@ -291,6 +302,7 @@ const Tugas = (() => {
       hapusTugas(id);
     });
 
+    perbaruiTombolTenggat();
     render();
   }
 

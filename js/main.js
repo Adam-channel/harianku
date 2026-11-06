@@ -3,7 +3,7 @@
    Menyalakan aplikasi: menjalankan tiap alat, mengatur pindah tab
    (lewat alamat #uang, #tugas, #belanja, #patungan), dan menjaga
    tampilan tetap sesuai saat data atau tanggal berubah.
-   File ini harus dimuat paling akhir.
+   File ini dimuat setelah semua alat (sebelum pwa.js).
    ============================================================== */
 
 const Aplikasi = (() => {
@@ -11,9 +11,9 @@ const Aplikasi = (() => {
 
   // Nama tab (dipakai juga untuk judul tab browser)
   const TAB = {
-    uang: 'Catatan Uang',
-    tugas: 'Daftar Tugas',
-    belanja: 'Daftar Belanja',
+    uang: 'Uang',
+    tugas: 'Tugas',
+    belanja: 'Belanja',
     patungan: 'Patungan',
   };
   const DAFTAR_TAB = Object.keys(TAB);
@@ -36,14 +36,15 @@ const Aplikasi = (() => {
     }
     document.title = `${TAB[tab]} · Harianku`;
     Inti.simpan('tab', tab);   // dibuka lagi di tab yang sama
+    Data.perbaruiInfoCadangan();
   }
 
+  // Tanggal hari ini: versi panjang di sidebar, versi pendek di bilah atas HP
   function perbaruiTanggal() {
-    document.getElementById('tanggal-hari-ini').textContent = Inti.tanggalPanjang(Inti.hariIni());
-  }
-
-  function aturInfoAwal() {
-    document.getElementById('info-awal').hidden = !!Inti.muat('infoDitutup', false);
+    const hari = Inti.hariIni();
+    document.querySelectorAll('[data-tanggal]').forEach((e) => {
+      e.textContent = e.dataset.tanggal === 'pendek' ? Inti.tanggalPendek(hari) : Inti.tanggalPanjang(hari);
+    });
   }
 
   // Baca ulang semua data dari penyimpanan lalu gambar ulang semua alat
@@ -52,18 +53,13 @@ const Aplikasi = (() => {
     Tugas.muatUlang();
     Belanja.muatUlang();
     Patungan.muatUlang();
-    aturInfoAwal();
+    Data.perbaruiInfoCadangan();
   }
 
 
   /* MULAI --------------------------------------------------------- */
   perbaruiTanggal();
   if (!Inti.penyimpananAktif) document.getElementById('peringatan-penyimpanan').hidden = false;
-  aturInfoAwal();
-  document.getElementById('info-awal-tutup').addEventListener('click', () => {
-    Inti.simpan('infoDitutup', true);
-    aturInfoAwal();
-  });
 
   Uang.mulai();
   Tugas.mulai();
