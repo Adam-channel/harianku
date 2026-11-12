@@ -53,6 +53,7 @@ Setelah mengubah file di folder `web-harian`, unggah perubahannya ke repo. Situs
 HP yang sudah memasang aplikasinya mengambil versi baru otomatis saat sedang online.
 
 Cara pakai singkat:
+- **Baru pertama kali?** Saat Harianku masih kosong, muncul tombol **Isi data contoh** di atas halaman. Semua alat terisi contoh supaya terlihat cara kerjanya. Tombol **Hapus data contoh** hanya menghapus contoh, catatan yang Anda tambahkan sendiri tetap ada.
 - Ketuk sebuah baris (transaksi, tugas, barang) untuk **mengubah**.
 - **Menghapus:** di HP, ketuk barisnya lalu pilih **Hapus**. Di laptop, bisa juga lewat ikon tempat sampah yang muncul saat kursor diarahkan ke baris. Setelah menghapus, tekan **Urungkan** di notifikasi bawah selama ±8 detik kalau salah hapus.
 - Di HP, tombol bulat **+** di kanan bawah halaman Uang untuk mencatat transaksi.
@@ -86,6 +87,8 @@ web-harian/
 ├── index.html            susunan halaman: teks, tombol, form, dialog
 ├── PANDUAN.md            file ini
 ├── manifest.webmanifest  nama, ikon, dan warna saat dipasang sebagai aplikasi
+├── gambar/
+│   └── pratinjau.jpg     gambar 1200×630 yang muncul saat link dibagikan (WhatsApp, LinkedIn)
 ├── sw.js                 service worker: salinan file supaya bisa dibuka offline
 ├── css/
 │   └── style.css         tampilan (warna di bagian 1 "Token desain")
@@ -116,12 +119,16 @@ Setelah file diubah dan disimpan, muat ulang halaman (**F5**). Kalau perubahan b
 | Excel menampilkan CSV dalam satu kolom | `js/data.js`, ganti `PEMISAH_CSV` dari `';'` ke `','`. Titik koma cocok untuk Excel dengan format wilayah Indonesia, termasuk laptop ini. |
 | Lama notifikasi "Urungkan" | `js/inti.js`, fungsi `toast` (8000 = 8 detik). |
 | Cara hitung pajak patungan | `js/patungan.js`, fungsi `hitungRinci`. Saat ini pajak dihitung dari subtotal + servis, seperti umumnya di resto Indonesia. |
+| Isi data contoh | `js/data.js`, fungsi `buatContoh()`. Id contoh harus tetap berawalan `contoh-` supaya bisa dihapus tanpa menyentuh data asli. |
+| Pratinjau saat link dibagikan | Gambar `gambar/pratinjau.jpg` (1200×630) dan tag `og:` di bagian atas `index.html`. Alamatnya harus lengkap (`https://...`), jadi ubah kalau situs pindah alamat. WhatsApp menyimpan pratinjau lama beberapa waktu. |
 | Teks/judul di halaman | `index.html`. Teks yang muncul dari kode (pesan kosong, notifikasi) ada di file `js/` masing-masing alat. |
 | Ganti logo / ikon aplikasi | Folder `ikon/`. Logo sekarang memakai warna yang sama dengan kartu saldo: kotak hijau zamrud bergradasi, garis lingkaran & bingkai emas, huruf H serif emas. `ikon.svg` = logo bersudut bulat (tab browser, sidebar, bilah atas), `ikon-penuh.svg` = versi tanpa sudut untuk *maskable* & iPhone. File PNG (192×192, 512×512, 180×180 untuk iPhone) dibuat dari kedua SVG itu. Setelah mengganti logo, naikkan angka `?v=3` di `index.html` dan `manifest.webmanifest` (misalnya ke `?v=4`) supaya browser & HP mengambil logo baru. |
 | Menambah file baru (supaya ikut bisa dibuka offline) | `sw.js`: tambahkan nama file ke daftar `BERKAS`, lalu naikkan `VERSI` (misalnya dari `'harianku-v3'` ke `'harianku-v4'`). |
 | Nama aplikasi di layar utama | `manifest.webmanifest` (`name`, `short_name`) dan `apple-mobile-web-app-title` di `index.html`. |
 
-Kunci localStorage yang dipakai (semuanya berawalan `harianku:`): `transaksi`, `anggaran`, `tugas`, `belanja`, `patungan`, `tab` (tab terakhir), `cadanganTerakhir` (waktu cadangan terakhir diunduh), `pasangDitutup` (tawaran pasang aplikasi sudah ditutup).
+Kunci localStorage yang dipakai (semuanya berawalan `harianku:`): `transaksi`, `anggaran`, `tugas`, `belanja`, `patungan`, `tab` (tab terakhir), `cadanganTerakhir` (waktu cadangan terakhir diunduh), `pasangDitutup` (tawaran pasang aplikasi sudah ditutup), `contohDitutup` (tawaran data contoh sudah ditutup).
+
+Angka di kartu saldo otomatis mengecil kalau terlalu panjang untuk satu baris (fungsi `pasUkuran` di `js/inti.js`), jadi saldo puluhan atau ratusan juta tetap utuh.
 
 ## 5. Kebutuhan
 

@@ -373,12 +373,28 @@ const Uang = (() => {
     });
     el.formAnggaran.addEventListener('submit', simpanAnggaran);
 
+    // Lebar kartu berubah (putar HP, ubah ukuran jendela) -> hitung ulang ukuran angka
+    let jedaUkuran = 0;
+    const saatBerubah = () => {
+      clearTimeout(jedaUkuran);
+      jedaUkuran = setTimeout(pasKartu, 120);
+    };
+    if (window.ResizeObserver) new ResizeObserver(saatBerubah).observe(el.sisa.closest('.statistik'));
+    else window.addEventListener('resize', saatBerubah);
+
     render();
   }
 
   function muatUlang() {
     muatData();
     render();
+  }
+
+  // Hitung ulang ukuran angka kartu saldo (saat tab Uang dibuka atau layar berubah ukuran)
+  function pasKartu() {
+    for (const e of [el.sisa, el.totalMasuk, el.totalKeluar]) {
+      Inti.pasUkuran(e, [Inti.rupiah(Number(e.dataset.nilai || 0))]);
+    }
   }
 
   // Dipakai alat lain (Belanja) untuk membuka form dengan isian awal
@@ -395,5 +411,5 @@ const Uang = (() => {
     return cariKategori(id).nama;
   }
 
-  return { mulai, render, muatUlang, bukaFormBaru, semuaTransaksi, namaKategori };
+  return { mulai, render, muatUlang, pasKartu, bukaFormBaru, semuaTransaksi, namaKategori };
 })();

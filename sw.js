@@ -13,10 +13,10 @@
    dibuka dengan klik dua kali (file:///) file ini tidak dipakai.
 
    Kalau menambah file baru: masukkan namanya ke BERKAS, lalu naikkan
-   VERSI (misalnya dari 'harianku-v4' ke 'harianku-v5') supaya cache lama dibersihkan.
+   VERSI (misalnya dari 'harianku-v5' ke 'harianku-v6') supaya cache lama dibersihkan.
    ============================================================== */
 
-const VERSI = 'harianku-v4';
+const VERSI = 'harianku-v5';
 
 const BERKAS = [
   './index.html',
@@ -72,7 +72,14 @@ async function internetDulu(req) {
   const cache = await caches.open(VERSI);
 
   // Ambil dari internet. Kalau berhasil, salinan di cache ikut diperbarui.
-  const dariInternet = fetch(req).then((res) => {
+  // cache: 'no-cache' = selalu tanya server apakah file sudah berubah (cepat,
+  // cukup "304 tidak berubah" kalau sama). Tanpa ini browser bisa memakai
+  // file JS lama dari cache HTTP selama ±10 menit setelah situs diperbarui,
+  // sehingga HTML baru bercampur dengan JS lama.
+  const segar = req.mode === 'navigate'
+    ? fetch(req.url, { cache: 'no-cache', credentials: 'same-origin' })
+    : fetch(req, { cache: 'no-cache' });
+  const dariInternet = segar.then((res) => {
     if (res.ok && res.type === 'basic') cache.put(req, res.clone());
     return res;
   });

@@ -35,6 +35,7 @@ const Aplikasi = (() => {
       else tautan.removeAttribute('aria-current');
     }
     document.title = `${TAB[tab]} · Harianku`;
+    if (tab === 'uang') Uang.pasKartu();   // ukuran angka baru bisa dihitung setelah terlihat
     Inti.simpan('tab', tab);   // dibuka lagi di tab yang sama
     Data.perbaruiInfoCadangan();
   }

@@ -9,6 +9,21 @@
   <meta name="theme-color" content="#0B1411" media="(prefers-color-scheme: dark)">
   <meta name="color-scheme" content="light dark">
 
+  <!-- Pratinjau saat tautan dibagikan (WhatsApp, LinkedIn, Facebook, X).
+       Gambar harus beralamat lengkap (https://...), jadi ganti kalau situs pindah alamat. -->
+  <link rel="canonical" href="https://adam-channel.github.io/harianku/">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="id_ID">
+  <meta property="og:site_name" content="Harianku">
+  <meta property="og:title" content="Harianku · Catatan uang, tugas, belanja & patungan">
+  <meta property="og:description" content="Satu aplikasi web untuk urusan sehari-hari. Gratis, bisa dipakai offline, dan data tetap tersimpan di perangkat sendiri.">
+  <meta property="og:url" content="https://adam-channel.github.io/harianku/">
+  <meta property="og:image" content="https://adam-channel.github.io/harianku/gambar/pratinjau.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Tampilan Harianku: kartu saldo hijau zamrud dan daftar transaksi">
+  <meta name="twitter:card" content="summary_large_image">
+
   <!-- Ikon tab browser & ikon aplikasi (folder ikon/). "?v=3" memaksa browser
        mengambil logo terbaru; naikkan angkanya setiap logo diganti. -->
   <link rel="icon" href="ikon/ikon.svg?v=3" type="image/svg+xml">
@@ -138,6 +153,16 @@
         Buka di jendela biasa atau browser lain.
       </p>
 
+      <!-- Data contoh: ditawarkan saat Harianku masih kosong, dan bisa dihapus lagi (lihat js/data.js) -->
+      <div class="pemberitahuan pemberitahuan--contoh" id="info-contoh" hidden>
+        <svg class="ikon" aria-hidden="true"><use href="#i-bintang"/></svg>
+        <p id="info-contoh-teks"></p>
+        <button type="button" class="tombol tombol--utama tombol--kecil" id="contoh-tombol"></button>
+        <button type="button" class="tombol-ikon" id="contoh-tutup" aria-label="Tutup tawaran data contoh">
+          <svg class="ikon" aria-hidden="true"><use href="#i-x"/></svg>
+        </button>
+      </div>
+
       <!-- Tawaran pasang aplikasi: hanya muncul di browser yang mendukung (lihat js/pwa.js) -->
       <div class="pemberitahuan" id="info-pasang" hidden>
         <svg class="ikon" aria-hidden="true"><use href="#i-pasang"/></svg>
@@ -174,8 +199,8 @@
           </div>
         </header>
 
+        <div class="kartu-wadah">
         <div class="statistik">
-          <span class="statistik__merek" aria-hidden="true">Harianku</span>
           <div class="stat stat--utama">
             <span class="stat__label" id="uang-sisa-label">Sisa bulan ini</span>
             <span class="stat__nilai" id="uang-sisa">Rp 0</span>
@@ -188,6 +213,7 @@
             <span class="stat__label">Pengeluaran</span>
             <span class="stat__nilai" id="uang-total-keluar">Rp 0</span>
           </div>
+        </div>
         </div>
         <div class="anggaran" id="uang-anggaran"><!-- diisi oleh uang.js --></div>
 

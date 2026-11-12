@@ -55,6 +55,7 @@ const Inti = (() => {
     if (!penyimpananAktif) return false;
     try {
       localStorage.setItem(AWALAN + kunci, JSON.stringify(nilai));
+      kabarkanPerubahan(kunci);
       return true;
     } catch (e) {
       console.warn('Gagal menyimpan "' + kunci + '".', e);
@@ -64,7 +65,14 @@ const Inti = (() => {
   }
 
   function hapus(kunci) {
-    if (penyimpananAktif) localStorage.removeItem(AWALAN + kunci);
+    if (!penyimpananAktif) return;
+    localStorage.removeItem(AWALAN + kunci);
+    kabarkanPerubahan(kunci);
+  }
+
+  // Beri tahu bagian lain (pengingat cadangan, tawaran data contoh) bahwa data berubah
+  function kabarkanPerubahan(kunci) {
+    document.dispatchEvent(new CustomEvent('harianku:berubah', { detail: { kunci } }));
   }
 
   // Semua kunci milik Harianku (tanpa awalan)
@@ -106,12 +114,20 @@ const Inti = (() => {
     const awal = Number(elemen.dataset.nilai || 0);
     elemen.dataset.nilai = String(nilai);
     cancelAnimationFrame(elemen._animasi || 0);
+    clearTimeout(elemen._akhir);   // batalkan animasi sebelumnya yang belum selesai
+    pasUkuran(elemen, [rupiah(awal), rupiah(nilai)]);
     if (kurangiGerak.matches || document.hidden || awal === nilai || !window.requestAnimationFrame) {
       elemen.textContent = rupiah(nilai);
       return;
     }
     const mulai = performance.now();
     const LAMA = 600;
+    // Pengaman: kalau browser menahan animasi (tab di latar belakang, mode hemat daya),
+    // angka akhir tetap tampil tepat waktu.
+    elemen._akhir = setTimeout(() => {
+      cancelAnimationFrame(elemen._animasi || 0);
+      elemen.textContent = rupiah(nilai);
+    }, LAMA + 50);
     const langkah = (sekarang) => {
       const p = Math.min(1, (sekarang - mulai) / LAMA);
       const halus = 1 - Math.pow(1 - p, 3);   // cepat di awal, melambat di akhir
@@ -119,6 +135,26 @@ const Inti = (() => {
       if (p < 1) elemen._animasi = requestAnimationFrame(langkah);
     };
     elemen._animasi = requestAnimationFrame(langkah);
+  }
+
+  // Kecilkan huruf kalau teks tidak muat dalam satu baris, supaya angka
+  // besar (misalnya saldo puluhan juta) tidak terpotong ke baris kedua.
+  // daftarTeks: semua teks yang akan tampil (awal & akhir animasi).
+  function pasUkuran(elemen, daftarTeks) {
+    elemen.style.fontSize = '';
+    const lebar = elemen.clientWidth;
+    if (!lebar) return;   // belum terlihat (tab lain): dihitung lagi saat tab dibuka
+    const asli = elemen.textContent;
+    let skala = 1;
+    for (const teks of daftarTeks) {
+      elemen.textContent = teks;
+      if (elemen.scrollWidth > lebar) skala = Math.min(skala, lebar / elemen.scrollWidth);
+    }
+    elemen.textContent = asli;
+    if (skala < 1) {
+      const dasar = parseFloat(getComputedStyle(elemen).fontSize);
+      elemen.style.fontSize = Math.max(14, Math.floor(dasar * skala * 0.97)) + 'px';
+    }
   }
 
   // 25000 -> "25.000"
@@ -428,7 +464,7 @@ const Inti = (() => {
 
   return {
     penyimpananAktif, muat, simpan, hapus, semuaKunci, ukuranData,
-    rupiah, angkaBerjalan, angka, bacaRupiah, bacaDesimal,
+    rupiah, angkaBerjalan, pasUkuran, angka, bacaRupiah, bacaDesimal,
     keTeks, hariIni, keTanggal, selisihHari, tanggalPanjang, tanggalPendek, labelHari, namaBulan,
     esc, buatId, ikon, jagaFokus, isiRupiah,
     toast, tutupToast, bukaDialog, tutupDialog, konfirmasi, bukaPemilihTanggal,
