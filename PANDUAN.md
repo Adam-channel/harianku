@@ -9,7 +9,9 @@ Harianku adalah satu halaman web berisi 4 alat untuk urusan sehari-hari:
 | **Belanja** | Daftar belanja dengan jumlah & perkiraan harga. Centang saat masuk keranjang (totalnya tampil di bilah bawah), lalu **Catat ke Uang** atau bagikan daftarnya ke WhatsApp. |
 | **Patungan** | Bagi tagihan: *bagi rata* (dengan pembulatan) atau *per pesanan* (servis, pajak, diskon, ongkir). Hasilnya tampil sebagai struk dan bisa dibagikan ke grup. |
 
-Tidak perlu instalasi, akun, atau internet. Di laptop menu ada di sidebar kiri, di HP menu ada di bawah layar. Tampilan gelap/terang mengikuti pengaturan perangkat.
+Tidak perlu instalasi, akun, atau internet. Di laptop menu ada di sidebar hijau tua di kiri, di HP menu ada di bilah melayang di bawah layar. Tampilan gelap/terang mengikuti pengaturan perangkat.
+
+Warna tampilan "Gading & Zamrud": latar gading, hijau zamrud tua untuk kartu saldo dan tombol utama, emas kuningan sebagai aksen. Judul dan angka besar memakai huruf serif bawaan perangkat, jadi tidak perlu mengunduh font.
 
 ---
 
@@ -107,15 +109,16 @@ Setelah file diubah dan disimpan, muat ulang halaman (**F5**). Kalau perubahan b
 
 | Ingin… | Ubah di |
 |---|---|
-| Ganti warna | `css/style.css` bagian 1 "Token desain": `--utama` (tombol utama, navy), `--merek` dan `--merek-tinta` (oranye logo & menu aktif), `--tinta` (teks). Warna mode gelap ada di bagian 7. |
+| Ganti warna | `css/style.css` bagian 1 "Token desain": `--latar` (gading), `--utama` (tombol utama, hijau zamrud), `--emas`/`--emas-terang`/`--emas-tinta` (aksen emas), `--gelap` (sidebar & navigasi bawah), `--tinta` (teks). Warna kartu saldo ada di `.statistik` (bagian 5). Warna mode gelap ada di bagian 7. |
+| Animasi | Angka di kartu saldo bergerak lewat `angkaBerjalan` di `js/inti.js`. Animasi halaman ada di bagian 2 `css/style.css`. Semua animasi otomatis mati kalau perangkat diatur "kurangi gerakan". |
 | Tambah/ubah kategori uang | `js/uang.js`, daftar `KATEGORI`. Boleh ubah `nama`/`warna`, tapi **jangan ganti `id`** yang sudah terpakai. |
 | Batas hari pengingat cadangan | `js/data.js`, `PENGINGAT_HARI` (bawaan 14). |
 | Excel menampilkan CSV dalam satu kolom | `js/data.js`, ganti `PEMISAH_CSV` dari `';'` ke `','`. Titik koma cocok untuk Excel dengan format wilayah Indonesia, termasuk laptop ini. |
 | Lama notifikasi "Urungkan" | `js/inti.js`, fungsi `toast` (8000 = 8 detik). |
 | Cara hitung pajak patungan | `js/patungan.js`, fungsi `hitungRinci`. Saat ini pajak dihitung dari subtotal + servis, seperti umumnya di resto Indonesia. |
 | Teks/judul di halaman | `index.html`. Teks yang muncul dari kode (pesan kosong, notifikasi) ada di file `js/` masing-masing alat. |
-| Ganti ikon aplikasi | Folder `ikon/`. Ganti file PNG dengan gambar berukuran sama (192×192, 512×512, dan 180×180 untuk iPhone). Versi *maskable* harus berlatar penuh tanpa sudut transparan, dengan gambar utama di tengah. |
-| Menambah file baru (supaya ikut bisa dibuka offline) | `sw.js`: tambahkan nama file ke daftar `BERKAS`, lalu naikkan `VERSI` (misalnya dari `'harianku-v2'` ke `'harianku-v3'`). |
+| Ganti ikon aplikasi | Folder `ikon/` (sekarang kotak hijau zamrud dengan huruf H emas). Ganti file PNG dengan gambar berukuran sama (192×192, 512×512, dan 180×180 untuk iPhone). Versi *maskable* harus berlatar penuh tanpa sudut transparan, dengan gambar utama di tengah. |
+| Menambah file baru (supaya ikut bisa dibuka offline) | `sw.js`: tambahkan nama file ke daftar `BERKAS`, lalu naikkan `VERSI` (misalnya dari `'harianku-v3'` ke `'harianku-v4'`). |
 | Nama aplikasi di layar utama | `manifest.webmanifest` (`name`, `short_name`) dan `apple-mobile-web-app-title` di `index.html`. |
 
 Kunci localStorage yang dipakai (semuanya berawalan `harianku:`): `transaksi`, `anggaran`, `tugas`, `belanja`, `patungan`, `tab` (tab terakhir), `cadanganTerakhir` (waktu cadangan terakhir diunduh), `pasangDitutup` (tawaran pasang aplikasi sudah ditutup).

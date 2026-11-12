@@ -98,6 +98,29 @@ const Inti = (() => {
     return formatRupiah.format(Math.round(Number(n) || 0));
   }
 
+  // Menampilkan Rupiah yang "berjalan" dari nilai lama ke nilai baru
+  // (sekitar 0,6 detik). Langsung tampil tanpa animasi kalau pengguna
+  // meminta gerak dikurangi, atau saat halaman tidak terlihat.
+  const kurangiGerak = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : { matches: false };
+  function angkaBerjalan(elemen, nilai) {
+    const awal = Number(elemen.dataset.nilai || 0);
+    elemen.dataset.nilai = String(nilai);
+    cancelAnimationFrame(elemen._animasi || 0);
+    if (kurangiGerak.matches || document.hidden || awal === nilai || !window.requestAnimationFrame) {
+      elemen.textContent = rupiah(nilai);
+      return;
+    }
+    const mulai = performance.now();
+    const LAMA = 600;
+    const langkah = (sekarang) => {
+      const p = Math.min(1, (sekarang - mulai) / LAMA);
+      const halus = 1 - Math.pow(1 - p, 3);   // cepat di awal, melambat di akhir
+      elemen.textContent = rupiah(awal + (nilai - awal) * halus);
+      if (p < 1) elemen._animasi = requestAnimationFrame(langkah);
+    };
+    elemen._animasi = requestAnimationFrame(langkah);
+  }
+
   // 25000 -> "25.000"
   function angka(n) {
     return formatAngka.format(Number(n) || 0);
@@ -405,7 +428,7 @@ const Inti = (() => {
 
   return {
     penyimpananAktif, muat, simpan, hapus, semuaKunci, ukuranData,
-    rupiah, angka, bacaRupiah, bacaDesimal,
+    rupiah, angkaBerjalan, angka, bacaRupiah, bacaDesimal,
     keTeks, hariIni, keTanggal, selisihHari, tanggalPanjang, tanggalPendek, labelHari, namaBulan,
     esc, buatId, ikon, jagaFokus, isiRupiah,
     toast, tutupToast, bukaDialog, tutupDialog, konfirmasi, bukaPemilihTanggal,

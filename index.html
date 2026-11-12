@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
   <title>Harianku · Alat bantu sehari-hari</title>
   <meta name="description" content="Catatan uang, daftar tugas, daftar belanja, dan kalkulator patungan dalam satu halaman. Data tersimpan di perangkat sendiri dan bisa dipakai offline.">
-  <meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#0B0F17" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#F5F1E8" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0B1411" media="(prefers-color-scheme: dark)">
   <meta name="color-scheme" content="light dark">
 
   <!-- Ikon tab browser & ikon aplikasi (folder ikon/) -->
@@ -174,6 +174,7 @@
         </header>
 
         <div class="statistik">
+          <span class="statistik__merek" aria-hidden="true">Harianku</span>
           <div class="stat stat--utama">
             <span class="stat__label" id="uang-sisa-label">Sisa bulan ini</span>
             <span class="stat__nilai" id="uang-sisa">Rp 0</span>
@@ -192,11 +193,11 @@
         <div class="bagi">
           <div class="bagi__utama">
             <h3 class="judul-bagian">Transaksi</h3>
-            <div id="uang-daftar"><!-- diisi oleh uang.js --></div>
+            <div class="lembar" id="uang-daftar"><!-- diisi oleh uang.js --></div>
           </div>
           <aside class="bagi__samping" aria-labelledby="judul-kategori">
             <h3 class="judul-bagian" id="judul-kategori">Pengeluaran per kategori</h3>
-            <div id="uang-per-kategori"><!-- diisi oleh uang.js --></div>
+            <div class="lembar" id="uang-per-kategori"><!-- diisi oleh uang.js --></div>
           </aside>
         </div>
       </section>
@@ -244,7 +245,7 @@
           <button type="button" data-saring="selesai" aria-pressed="false">Selesai <span class="tab__jumlah" id="tugas-jumlah-selesai">0</span></button>
           <button type="button" data-saring="semua" aria-pressed="false">Semua <span class="tab__jumlah" id="tugas-jumlah-semua">0</span></button>
         </div>
-        <ul class="daftar" id="tugas-daftar"><!-- diisi oleh tugas.js --></ul>
+        <ul class="daftar lembar" id="tugas-daftar"><!-- diisi oleh tugas.js --></ul>
         <div class="kaki-daftar" id="tugas-aksi" hidden>
           <button type="button" class="tombol tombol--bahaya-teks tombol--kecil" id="tugas-hapus-selesai">Hapus tugas yang sudah selesai</button>
         </div>
@@ -290,7 +291,7 @@
           </div>
         </form>
 
-        <ul class="daftar" id="belanja-daftar"><!-- diisi oleh belanja.js --></ul>
+        <ul class="daftar lembar" id="belanja-daftar"><!-- diisi oleh belanja.js --></ul>
         <div class="kaki-daftar" id="belanja-aksi" hidden>
           <button type="button" class="tombol tombol--bahaya-teks tombol--kecil" id="belanja-hapus-diambil">Hapus yang sudah dicentang</button>
         </div>

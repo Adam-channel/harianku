@@ -97,9 +97,10 @@ const Uang = (() => {
     }
     const sisa = masuk - keluar;
 
-    el.totalMasuk.textContent = Inti.rupiah(masuk);
-    el.totalKeluar.textContent = Inti.rupiah(keluar);
-    el.sisa.textContent = Inti.rupiah(sisa);
+    // Angka di kartu saldo bergerak halus ke nilai barunya
+    Inti.angkaBerjalan(el.totalMasuk, masuk);
+    Inti.angkaBerjalan(el.totalKeluar, keluar);
+    Inti.angkaBerjalan(el.sisa, sisa);
     el.sisa.classList.toggle('nilai-minus', sisa < 0);
 
     renderAnggaran(keluar, bulanBerjalan);
