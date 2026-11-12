@@ -178,7 +178,7 @@ img { display: block; }
   margin: 0 -16px; padding-left: 16px; padding-right: 8px;
 }
 .bilah-atas__merek { display: flex; align-items: center; gap: 10px; font-family: var(--huruf-serif); font-size: 19px; font-weight: 600; letter-spacing: -.01em; }
-.bilah-atas__merek img { border-radius: 8px; box-shadow: 0 2px 6px rgb(10 31 25 / .25); }
+.bilah-atas__merek img { border-radius: 7px; box-shadow: 0 4px 10px -3px rgb(10 31 25 / .45); }
 .bilah-atas__kanan { display: flex; align-items: center; gap: 2px; }
 .bilah-atas__tanggal { margin-right: 4px; color: var(--tinta-3); font-size: 13px; }
 
@@ -740,7 +740,7 @@ input[type="checkbox"], input[type="radio"] { accent-color: var(--utama); }
     color: var(--di-gelap);
   }
   .samping__merek { display: flex; align-items: center; gap: 12px; padding: 0 8px; }
-  .samping__merek img { border-radius: 9px; box-shadow: 0 0 0 1px rgb(217 188 133 / .35), 0 6px 14px -4px rgb(0 0 0 / .5); }
+  .samping__merek img { border-radius: 9px; box-shadow: 0 8px 18px -6px rgb(0 0 0 / .6); }
   .samping__nama { font-family: var(--huruf-serif); font-size: 21px; font-weight: 600; line-height: 1.15; letter-spacing: -.01em; }
   .samping__tanggal { color: var(--di-gelap-2); font-size: 12px; }
 

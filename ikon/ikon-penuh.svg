@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Logo Harianku: kotak hijau zamrud seperti kartu saldo, garis lingkaran emas,
+       dan huruf H serif emas. File PNG di folder ini dibuat dari desain yang sama. -->
+  <defs>
+    <linearGradient id="latar" x1=".29" y1=".05" x2=".71" y2=".95">
+      <stop offset="0" stop-color="#12463A"/><stop offset=".45" stop-color="#0F3B2F"/><stop offset="1" stop-color="#0A271F"/>
+    </linearGradient>
+    <radialGradient id="kilau" cx="1" cy="0" r=".8">
+      <stop offset="0" stop-color="#2E7A5F" stop-opacity=".6"/><stop offset="1" stop-color="#2E7A5F" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="emas" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#EDD6A8"/><stop offset=".5" stop-color="#D9BC85"/><stop offset="1" stop-color="#B8925A"/>
+    </linearGradient>
+    <clipPath id="bentuk"><rect width="64" height="64" rx="0"/></clipPath>
+  </defs>
+  <g clip-path="url(#bentuk)">
+    <rect width="64" height="64" fill="url(#latar)"/>
+    <rect width="64" height="64" fill="url(#kilau)"/>
+    <g fill="none" stroke="#D9BC85" stroke-opacity=".15" stroke-width=".7"><circle cx="60" cy="58" r="10"/><circle cx="60" cy="58" r="17"/><circle cx="60" cy="58" r="24"/><circle cx="60" cy="58" r="31"/><circle cx="60" cy="58" r="38"/><circle cx="60" cy="58" r="45"/><circle cx="60" cy="58" r="52"/><circle cx="60" cy="58" r="59"/></g>
+  </g>
+  <g transform="translate(32 32) scale(.8) translate(-32 -32)">
+    <path d="M16.3 18.2H28.9V20Q25.7 20 25.7 22.6V41.4Q25.7 44 28.9 44V45.8H16.3V44Q19.5 44 19.5 41.4V22.6Q19.5 20 16.3 20ZM35.1 18.2H47.7V20Q44.5 20 44.5 22.6V41.4Q44.5 44 47.7 44V45.8H35.1V44Q38.3 44 38.3 41.4V22.6Q38.3 20 35.1 20ZM25.2 30.6H38.8V33H25.2Z" fill="#04140F" fill-opacity=".35" transform="translate(0 1.2)"/>
+    <path d="M16.3 18.2H28.9V20Q25.7 20 25.7 22.6V41.4Q25.7 44 28.9 44V45.8H16.3V44Q19.5 44 19.5 41.4V22.6Q19.5 20 16.3 20ZM35.1 18.2H47.7V20Q44.5 20 44.5 22.6V41.4Q44.5 44 47.7 44V45.8H35.1V44Q38.3 44 38.3 41.4V22.6Q38.3 20 35.1 20ZM25.2 30.6H38.8V33H25.2Z" fill="url(#emas)"/>
+  </g>
+</svg>

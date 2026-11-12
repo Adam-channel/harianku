@@ -9,10 +9,11 @@
   <meta name="theme-color" content="#0B1411" media="(prefers-color-scheme: dark)">
   <meta name="color-scheme" content="light dark">
 
-  <!-- Ikon tab browser & ikon aplikasi (folder ikon/) -->
-  <link rel="icon" href="ikon/ikon.svg" type="image/svg+xml">
-  <link rel="icon" href="ikon/ikon-192.png" type="image/png" sizes="192x192">
-  <link rel="apple-touch-icon" href="ikon/apple-touch-icon.png">
+  <!-- Ikon tab browser & ikon aplikasi (folder ikon/). "?v=3" memaksa browser
+       mengambil logo terbaru; naikkan angkanya setiap logo diganti. -->
+  <link rel="icon" href="ikon/ikon.svg?v=3" type="image/svg+xml">
+  <link rel="icon" href="ikon/ikon-192.png?v=3" type="image/png" sizes="192x192">
+  <link rel="apple-touch-icon" href="ikon/apple-touch-icon.png?v=3">
 
   <!-- Mode aplikasi di HP. File manifest dipasang oleh js/pwa.js (hanya lewat http/https). -->
   <meta name="mobile-web-app-capable" content="yes">
@@ -72,7 +73,7 @@
          yang terlihat, menempel di bawah layar. -->
     <aside class="samping">
       <div class="samping__merek">
-        <img src="ikon/ikon.svg" alt="" width="28" height="28">
+        <img src="ikon/ikon.svg?v=3" alt="" width="36" height="36">
         <div>
           <p class="samping__nama">Harianku</p>
           <p class="samping__tanggal" data-tanggal="panjang">&nbsp;</p>
@@ -118,7 +119,7 @@
       <!-- Bilah atas: hanya tampil di HP -->
       <div class="bilah-atas">
         <div class="bilah-atas__merek">
-          <img src="ikon/ikon.svg" alt="" width="22" height="22">
+          <img src="ikon/ikon.svg?v=3" alt="" width="28" height="28">
           <span>Harianku</span>
         </div>
         <div class="bilah-atas__kanan">

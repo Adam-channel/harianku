@@ -89,7 +89,7 @@ web-harian/
 ├── sw.js                 service worker: salinan file supaya bisa dibuka offline
 ├── css/
 │   └── style.css         tampilan (warna di bagian 1 "Token desain")
-├── ikon/                 ikon.svg (desain induk) + ikon PNG untuk HP
+├── ikon/                 ikon.svg & ikon-penuh.svg (desain induk logo) + ikon PNG untuk HP
 └── js/
     ├── inti.js           fungsi bersama: simpan data, format Rupiah & tanggal, notifikasi, dialog
     ├── uang.js           Catatan Uang (daftar KATEGORI di bagian atas)
@@ -117,7 +117,7 @@ Setelah file diubah dan disimpan, muat ulang halaman (**F5**). Kalau perubahan b
 | Lama notifikasi "Urungkan" | `js/inti.js`, fungsi `toast` (8000 = 8 detik). |
 | Cara hitung pajak patungan | `js/patungan.js`, fungsi `hitungRinci`. Saat ini pajak dihitung dari subtotal + servis, seperti umumnya di resto Indonesia. |
 | Teks/judul di halaman | `index.html`. Teks yang muncul dari kode (pesan kosong, notifikasi) ada di file `js/` masing-masing alat. |
-| Ganti ikon aplikasi | Folder `ikon/` (sekarang kotak hijau zamrud dengan huruf H emas). Ganti file PNG dengan gambar berukuran sama (192×192, 512×512, dan 180×180 untuk iPhone). Versi *maskable* harus berlatar penuh tanpa sudut transparan, dengan gambar utama di tengah. |
+| Ganti logo / ikon aplikasi | Folder `ikon/`. Logo sekarang memakai warna yang sama dengan kartu saldo: kotak hijau zamrud bergradasi, garis lingkaran & bingkai emas, huruf H serif emas. `ikon.svg` = logo bersudut bulat (tab browser, sidebar, bilah atas), `ikon-penuh.svg` = versi tanpa sudut untuk *maskable* & iPhone. File PNG (192×192, 512×512, 180×180 untuk iPhone) dibuat dari kedua SVG itu. Setelah mengganti logo, naikkan angka `?v=3` di `index.html` dan `manifest.webmanifest` (misalnya ke `?v=4`) supaya browser & HP mengambil logo baru. |
 | Menambah file baru (supaya ikut bisa dibuka offline) | `sw.js`: tambahkan nama file ke daftar `BERKAS`, lalu naikkan `VERSI` (misalnya dari `'harianku-v3'` ke `'harianku-v4'`). |
 | Nama aplikasi di layar utama | `manifest.webmanifest` (`name`, `short_name`) dan `apple-mobile-web-app-title` di `index.html`. |
 

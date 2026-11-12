@@ -13,10 +13,10 @@
    dibuka dengan klik dua kali (file:///) file ini tidak dipakai.
 
    Kalau menambah file baru: masukkan namanya ke BERKAS, lalu naikkan
-   VERSI (misalnya 'harianku-v2') supaya cache lama dibersihkan.
+   VERSI (misalnya dari 'harianku-v4' ke 'harianku-v5') supaya cache lama dibersihkan.
    ============================================================== */
 
-const VERSI = 'harianku-v3';
+const VERSI = 'harianku-v4';
 
 const BERKAS = [
   './index.html',
